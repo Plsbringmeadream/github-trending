@@ -1,0 +1,15 @@
+name: Daily Redeploy
+
+on:
+  schedule:
+    # 每天 UTC 00:00（北京时间 08:00）自动重新部署
+    - cron: '0 0 * * *'
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  redeploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Vercel Redeploy
+        run: |
+          curl -X POST "https://api.vercel.com/v1/integrations/deploy/${{ secrets.VERCEL_DEPLOY_HOOK }}"
