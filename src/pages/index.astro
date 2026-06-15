@@ -1,0 +1,94 @@
+---
+import Layout from '../layouts/Layout.astro';
+import FilterBar from '../components/FilterBar.astro';
+import StatsBar from '../components/StatsBar.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { fetchTrendingRepos } from '../lib/github';
+
+const lang = Astro.url.searchParams.get('lang') || 'All';
+const sort = Astro.url.searchParams.get('sort') || 'stars';
+
+let repos: any[] = [];
+let totalCount = 0;
+let totalStars = 0;
+let errorMsg = '';
+
+try {
+  const token = import.meta.env.GITHUB_TOKEN || process.env.GITHUB_TOKEN;
+  const data = await fetchTrendingRepos(lang === 'All' ? undefined : lang, 30, 1, 30, sort, token);
+  repos = data.repos;
+  totalCount = data.totalCount;
+  totalStars = repos.reduce((sum: number, r: any) => sum + r.stargazers_count, 0);
+} catch (err: any) {
+  errorMsg = err.message || 'Failed to fetch trending repositories';
+}
+---
+
+<Layout title="GitHub Trending - Discover Hot Repositories">
+  <header class="bg-github-card border-b border-github-border">
+    <div class="max-w-7xl mx-auto px-4 py-5 flex items-center gap-4">
+      <div class="flex items-center gap-3">
+        <svg class="w-8 h-8 text-github-text" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+        </svg>
+        <div>
+          <h1 class="text-xl font-bold text-github-text">GitHub Trending</h1>
+          <p class="text-xs text-github-text-secondary">Discover the hottest repos from the last 30 days</p>
+        </div>
+      </div>
+      <div class="ml-auto flex items-center gap-2 text-sm text-github-text-secondary">
+        <span class="w-2 h-2 rounded-full bg-github-green animate-pulse"></span>
+        Live Data
+      </div>
+    </div>
+  </header>
+
+  <FilterBar currentLanguage={lang} currentSort={sort} />
+
+  {errorMsg ? (
+    <div class="max-w-7xl mx-auto px-4 py-20 text-center">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-github-fire/10 mb-6">
+        <svg class="w-8 h-8 text-github-fire" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.072 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+        </svg>
+      </div>
+      <h2 class="text-xl font-semibold text-github-text mb-2">Oops! Something went wrong</h2>
+      <p class="text-github-text-secondary max-w-md mx-auto mb-6">{errorMsg}</p>
+      <a href="/" class="inline-flex items-center gap-2 px-4 py-2 bg-github-accent text-github-darker rounded-lg font-medium hover:bg-github-accent/90 transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+        </svg>
+        Try Again
+      </a>
+      <p class="text-xs text-github-text-secondary mt-4">
+        Tip: Set a GITHUB_TOKEN environment variable to increase API rate limits.
+      </p>
+    </div>
+  ) : (
+    <>
+      <StatsBar totalCount={totalCount} totalStars={totalStars} currentLanguage={lang} />
+
+      <main class="max-w-7xl mx-auto px-4 pb-12">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {repos.map((repo: any, i: number) => (
+            <ProjectCard repo={repo} rank={i + 1} />
+          ))}
+        </div>
+
+        {repos.length === 0 && (
+          <div class="text-center py-20">
+            <p class="text-github-text-secondary text-lg">No repositories found for this filter.</p>
+            <a href="/" class="inline-block mt-4 text-github-accent hover:underline">View all trending repos</a>
+          </div>
+        )}
+      </main>
+    </>
+  )}
+
+  <footer class="border-t border-github-border py-6 text-center text-sm text-github-text-secondary">
+    <p>
+      Data from <a href="https://github.com" class="text-github-accent hover:underline" target="_blank" rel="noopener noreferrer">GitHub</a>
+      &middot; Built with <a href="https://astro.build" class="text-github-accent hover:underline" target="_blank" rel="noopener noreferrer">Astro</a>
+    </p>
+  </footer>
+</Layout>

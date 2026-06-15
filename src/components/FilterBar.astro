@@ -1,0 +1,53 @@
+---
+import { LANGUAGES, SORT_OPTIONS } from '../lib/github';
+
+interface Props {
+  currentLanguage: string;
+  currentSort: string;
+}
+
+const { currentLanguage, currentSort } = Astro.props;
+---
+
+<div class="sticky top-0 z-50 bg-github-card/95 backdrop-blur-md border-b border-github-border">
+  <div class="max-w-7xl mx-auto px-4 py-3">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+      <!-- Language filters -->
+      <div class="flex gap-1.5 flex-1 overflow-x-auto pb-1 scrollbar-hide">
+        {LANGUAGES.map((lang) => (
+          <a
+            href={`/?lang=${encodeURIComponent(lang)}&sort=${currentSort}`}
+            class:list={[
+              'px-3 py-1.5 text-sm rounded-full transition-all duration-200 whitespace-nowrap',
+              currentLanguage === lang
+                ? 'bg-github-accent text-github-darker font-semibold'
+                : 'bg-github-card border border-github-border text-github-text-secondary hover:text-github-text hover:border-github-accent/50',
+            ]}
+          >
+            {lang}
+          </a>
+        ))}
+      </div>
+
+      <!-- Sort dropdown -->
+      <div class="relative">
+        <select
+          id="sort-select"
+          class="appearance-none bg-github-card border border-github-border text-github-text text-sm rounded-lg px-4 py-2 pr-8 cursor-pointer hover:border-github-accent/50 focus:border-github-accent focus:outline-none transition-colors"
+          onchange={`window.location.href='/?lang=${encodeURIComponent(currentLanguage)}&sort='+this.value`}
+        >
+          {SORT_OPTIONS.map((opt) => (
+            <option value={opt.value} selected={currentSort === opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-github-text-secondary">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

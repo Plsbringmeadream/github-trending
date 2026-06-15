@@ -1,0 +1,77 @@
+---
+interface Props {
+  currentPage: number;
+  totalPages: number;
+  language: string;
+  sort: string;
+}
+
+const { currentPage, totalPages, language, sort } = Astro.props;
+
+function getPageUrl(page: number): string {
+  return `/?lang=${encodeURIComponent(language)}&sort=${sort}&page=${page}`;
+}
+
+const maxVisible = 5;
+let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+if (endPage - startPage + 1 < maxVisible) {
+  startPage = Math.max(1, endPage - maxVisible + 1);
+}
+
+const pages: (number | string)[] = [];
+if (startPage > 1) {
+  pages.push(1);
+  if (startPage > 2) pages.push('...');
+}
+for (let i = startPage; i <= endPage; i++) {
+  pages.push(i);
+}
+if (endPage < totalPages) {
+  if (endPage < totalPages - 1) pages.push('...');
+  pages.push(totalPages);
+}
+---
+
+{totalPages > 1 && (
+  <nav class="flex items-center justify-center gap-2 mt-8" aria-label="Pagination">
+    {currentPage > 1 && (
+      <a
+        href={getPageUrl(currentPage - 1)}
+        class="px-3 py-2 bg-github-card border border-github-border rounded-lg text-github-text-secondary hover:text-github-text hover:border-github-accent/50 transition-colors text-sm"
+        aria-label="Previous page"
+      >
+        ← Prev
+      </a>
+    )}
+
+    {pages.map((page) => (
+      typeof page === 'number' ? (
+        <a
+          href={getPageUrl(page)}
+          class:list={[
+            'px-3 py-2 rounded-lg text-sm transition-colors min-w-[36px] text-center',
+            page === currentPage
+              ? 'bg-github-accent text-github-darker font-semibold'
+              : 'bg-github-card border border-github-border text-github-text-secondary hover:text-github-text hover:border-github-accent/50',
+          ]}
+          aria-current={page === currentPage ? 'page' : undefined}
+        >
+          {page}
+        </a>
+      ) : (
+        <span class="px-2 text-github-text-secondary">…</span>
+      )
+    ))}
+
+    {currentPage < totalPages && (
+      <a
+        href={getPageUrl(currentPage + 1)}
+        class="px-3 py-2 bg-github-card border border-github-border rounded-lg text-github-text-secondary hover:text-github-text hover:border-github-accent/50 transition-colors text-sm"
+        aria-label="Next page"
+      >
+        Next →
+      </a>
+    )}
+  </nav>
+)}

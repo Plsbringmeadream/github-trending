@@ -1,0 +1,64 @@
+---
+interface Props {
+  totalCount: number;
+  totalStars: number;
+  currentLanguage: string;
+}
+
+const { totalCount, totalStars, currentLanguage } = Astro.props;
+
+function formatBigNumber(n: number): string {
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
+  if (n >= 1_000) return (n / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
+  return n.toString();
+}
+---
+
+<div class="max-w-7xl mx-auto px-4 py-6">
+  <div class="flex flex-wrap items-center gap-6">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-lg bg-github-accent/10 flex items-center justify-center">
+        <svg class="w-5 h-5 text-github-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+        </svg>
+      </div>
+      <div>
+        <p class="text-2xl font-bold text-github-text">{formatBigNumber(totalCount)}</p>
+        <p class="text-xs text-github-text-secondary">Trending Repos</p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-lg bg-github-orange/10 flex items-center justify-center">
+        <span class="text-lg">⭐</span>
+      </div>
+      <div>
+        <p class="text-2xl font-bold text-github-text">{formatBigNumber(totalStars)}</p>
+        <p class="text-xs text-github-text-secondary">Total Stars</p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-lg bg-github-green/10 flex items-center justify-center">
+        <svg class="w-5 h-5 text-github-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+        </svg>
+      </div>
+      <div>
+        <p class="text-2xl font-bold text-github-text">30d</p>
+        <p class="text-xs text-github-text-secondary">Time Window</p>
+      </div>
+    </div>
+
+    {currentLanguage !== 'All' && (
+      <div class="ml-auto flex items-center gap-2 px-3 py-1.5 bg-github-accent/10 border border-github-accent/20 rounded-full">
+        <span class="text-sm text-github-accent font-medium">{currentLanguage}</span>
+        <a href="/" class="text-github-text-secondary hover:text-github-text transition-colors" title="Clear filter">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </a>
+      </div>
+    )}
+  </div>
+</div>
