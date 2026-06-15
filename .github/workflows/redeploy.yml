@@ -10,6 +10,12 @@ jobs:
   redeploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger Vercel Redeploy
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Make empty commit
         run: |
-          curl -X POST "https://api.vercel.com/v1/integrations/deploy/${{ secrets.VERCEL_DEPLOY_HOOK }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit --allow-empty -m "chore: daily redeploy $(date +%Y-%m-%d)"
+          git push
