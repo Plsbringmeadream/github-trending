@@ -4,11 +4,11 @@ interface Props {
   description?: string;
 }
 
-const { title, description = "Discover the hottest GitHub repositories from the last 30 days. Browse trending projects by language, stars, and recent activity." } = Astro.props;
+const { title, description = "Discover the hottest GitHub repositories from the last 30 days. AI-powered analysis, trending data, and open source discovery." } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -23,10 +23,27 @@ const { title, description = "Discover the hottest GitHub repositories from the 
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
   </head>
-  <body class="min-h-screen bg-[#f6f8fa] text-[#1f2328] font-sans">
-    <slot />
+  <body class="min-h-screen bg-neon-bg text-neon-text font-sans grid-bg relative">
+    <div id="mouse-glow"></div>
+    <div class="relative z-10">
+      <slot />
+    </div>
   </body>
 </html>
+
+<script>
+  // Mouse-following glow effect
+  const glow = document.getElementById('mouse-glow');
+  if (glow) {
+    let rafId: number;
+    document.addEventListener('mousemove', (e) => {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        glow.style.transform = `translate(${e.clientX - 200}px, ${e.clientY - 200}px)`;
+      });
+    });
+  }
+</script>
 
 <style is:global>
   @import '../styles/global.css';

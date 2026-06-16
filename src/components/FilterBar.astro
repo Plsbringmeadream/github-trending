@@ -10,13 +10,13 @@ interface Props {
 const { currentLanguage, currentSort, currentDays } = Astro.props;
 
 const DAYS_OPTIONS = [
-  { value: 7, label: '7天' },
-  { value: 14, label: '14天' },
-  { value: 30, label: '30天' },
+  { value: 7, label: '7d' },
+  { value: 14, label: '14d' },
+  { value: 30, label: '30d' },
 ];
 ---
 
-<div class="sticky top-0 z-50 bg-github-card/95 backdrop-blur-md border-b border-github-border">
+<div class="sticky top-0 z-50 glass border-b border-neon-border">
   <div class="max-w-7xl mx-auto px-4 py-3">
     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
       <!-- Language filters -->
@@ -25,10 +25,10 @@ const DAYS_OPTIONS = [
           <a
             href={`/?lang=${encodeURIComponent(lang)}&sort=${currentSort}&days=${currentDays}`}
             class:list={[
-              'px-3 py-1.5 text-sm rounded-full transition-all duration-200 whitespace-nowrap',
+              'pill-tab px-3 py-1.5 text-sm rounded-full whitespace-nowrap transition-all duration-250',
               currentLanguage === lang
-                ? 'bg-github-accent text-github-darker font-semibold'
-                : 'bg-github-card border border-github-border text-github-text-secondary hover:text-github-text hover:border-github-accent/50',
+                ? 'bg-gradient-to-r from-neon-accent to-neon-purple text-white font-semibold shadow-lg shadow-neon-accent/20'
+                : 'glass text-neon-text-secondary hover:text-neon-text hover:border-neon-accent/30',
             ]}
           >
             {lang}
@@ -39,15 +39,15 @@ const DAYS_OPTIONS = [
       <!-- Controls group -->
       <div class="flex items-center gap-2">
         <!-- Time range selector -->
-        <div class="flex items-center border border-github-border rounded-lg overflow-hidden">
+        <div class="flex items-center glass rounded-xl overflow-hidden">
           {DAYS_OPTIONS.map((opt) => (
             <a
               href={`/?lang=${encodeURIComponent(currentLanguage)}&sort=${currentSort}&days=${opt.value}`}
               class:list={[
                 'px-3 py-1.5 text-sm transition-all duration-200 whitespace-nowrap',
                 currentDays === opt.value
-                  ? 'bg-github-green text-white font-semibold'
-                  : 'bg-github-card text-github-text-secondary hover:text-github-text hover:bg-github-darker',
+                  ? 'bg-gradient-to-r from-neon-green to-emerald-400 text-white font-semibold'
+                  : 'text-neon-text-secondary hover:text-neon-text hover:bg-white/5',
               ]}
             >
               {opt.label}
@@ -59,7 +59,7 @@ const DAYS_OPTIONS = [
         <div class="relative">
           <select
             id="sort-select"
-            class="appearance-none bg-github-card border border-github-border text-github-text text-sm rounded-lg px-4 py-2 pr-8 cursor-pointer hover:border-github-accent/50 focus:border-github-accent focus:outline-none transition-colors"
+            class="appearance-none glass text-neon-text text-sm rounded-xl px-4 py-2 pr-8 cursor-pointer hover:border-neon-accent/30 focus:border-neon-accent/50 focus:outline-none transition-colors"
             onchange={`window.location.href='/?lang=${encodeURIComponent(currentLanguage)}&days=${currentDays}&sort='+this.value`}
           >
             {SORT_OPTIONS.map((opt) => (
@@ -68,7 +68,7 @@ const DAYS_OPTIONS = [
               </option>
             ))}
           </select>
-          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-github-text-secondary">
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-neon-text-secondary">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
             </svg>

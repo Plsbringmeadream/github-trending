@@ -30,37 +30,77 @@ try {
 }
 
 const totalPages = Math.ceil(totalCount / perPage);
+
+// Get top language
+const langCounts: Record<string, number> = {};
+repos.forEach((r: any) => {
+  const l = r.language || 'Other';
+  langCounts[l] = (langCounts[l] || 0) + 1;
+});
+const topLang = Object.entries(langCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A';
 ---
 
-<Layout title="GitHub Trending - Discover Hot Repositories">
-  <header class="bg-github-card border-b border-github-border">
-    <div class="max-w-7xl mx-auto px-4 py-5 flex items-center gap-4">
-      <div class="flex items-center gap-3">
-        <svg class="w-8 h-8 text-github-text" fill="currentColor" viewBox="0 0 16 16">
-          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
-        </svg>
-        <div>
-          <h1 class="text-xl font-bold text-github-text">GitHub Trending</h1>
-          <p class="text-xs text-github-text-secondary">Discover the hottest repos from the last {days} days</p>
+<Layout title="GitHub Trending - AI-Powered Repository Discovery">
+  <!-- Hero Section -->
+  <header class="relative overflow-hidden border-b border-neon-border">
+    <!-- Animated grid background -->
+    <div class="absolute inset-0 opacity-30">
+      <div class="absolute inset-0" style="background: radial-gradient(ellipse at 30% 20%, rgba(129,140,248,0.15) 0%, transparent 50%);"></div>
+      <div class="absolute inset-0" style="background: radial-gradient(ellipse at 70% 80%, rgba(34,211,238,0.1) 0%, transparent 50%);"></div>
+    </div>
+
+    <div class="relative max-w-7xl mx-auto px-4 py-8 sm:py-12">
+      <!-- Top bar -->
+      <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-neon-accent to-neon-cyan flex items-center justify-center">
+            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-lg font-bold text-neon-text">GitHub Trending</h1>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full bg-neon-green/10 text-neon-green border border-neon-green/20">
+            <span class="w-1.5 h-1.5 rounded-full bg-neon-green animate-pulse"></span>
+            Live Data
+          </span>
+          <span class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full bg-neon-accent/10 text-neon-accent border border-neon-accent/20">
+            🧠 AI-Powered
+          </span>
         </div>
       </div>
-      <div class="ml-auto flex items-center gap-3">
-        <!-- AI buttons -->
-        <button id="batch-summary-btn" class="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-full border border-github-border text-github-text-secondary hover:text-github-accent hover:border-github-accent/50 transition-colors cursor-pointer" title="批量总结当前页面仓库">
-          🤖 批量总结
+
+      <!-- Hero text -->
+      <div class="text-center max-w-3xl mx-auto mb-6">
+        <div class="inline-flex items-center gap-2 px-3 py-1 mb-4 text-xs font-medium rounded-full bg-neon-accent/10 text-neon-accent border border-neon-accent/20">
+          <span class="w-2 h-2 rounded-full bg-neon-accent animate-pulse"></span>
+          Live GitHub Intelligence
+        </div>
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-4 leading-tight">
+          <span class="gradient-text">Discover the Next Breakout</span>
+          <br />
+          <span class="text-neon-text">GitHub Repositories</span>
+        </h2>
+        <p class="text-neon-text-secondary text-base sm:text-lg max-w-2xl mx-auto">
+          AI-powered analysis of trending open source projects. Track stars, languages, and repo growth in real time.
+        </p>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="flex items-center justify-center gap-3 flex-wrap">
+        <button id="batch-summary-btn" class="btn-glow flex items-center gap-2 px-4 py-2 text-sm rounded-xl glass glass-hover text-neon-text-secondary hover:text-neon-accent transition-all duration-300 cursor-pointer">
+          <span class="text-base">🧠</span> AI Insight
         </button>
-        <button id="ai-recommend-btn" class="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-full border border-github-border text-github-text-secondary hover:text-github-accent hover:border-github-accent/50 transition-colors cursor-pointer" title="AI 推荐不同场景的仓库">
-          🎯 AI 推荐
+        <button id="ai-recommend-btn" class="btn-glow flex items-center gap-2 px-4 py-2 text-sm rounded-xl glass glass-hover text-neon-text-secondary hover:text-neon-cyan transition-all duration-300 cursor-pointer">
+          <span class="text-base">🎯</span> AI Picks
         </button>
-        <!-- Favorites counter -->
-        <button id="favorites-toggle" class="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-full border border-github-border text-github-text-secondary hover:text-github-orange hover:border-github-orange/50 transition-colors cursor-pointer" title="Show favorites">
-          <span>⭐</span>
+        <button id="favorites-toggle" class="btn-glow flex items-center gap-2 px-4 py-2 text-sm rounded-xl glass glass-hover text-neon-text-secondary hover:text-neon-orange transition-all duration-300 cursor-pointer">
+          <span class="text-base">⭐</span>
           <span id="favorites-count">0</span>
         </button>
-        <div class="flex items-center gap-2 text-sm text-github-text-secondary">
-          <span class="w-2 h-2 rounded-full bg-github-green animate-pulse"></span>
-          Live Data
-        </div>
       </div>
     </div>
   </header>
@@ -68,56 +108,56 @@ const totalPages = Math.ceil(totalCount / perPage);
   <FilterBar currentLanguage={lang} currentSort={sort} currentDays={days} />
 
   {errorMsg ? (
-    <div class="max-w-7xl mx-auto px-4 py-20 text-center">
-      <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-github-fire/10 mb-6">
-        <svg class="w-8 h-8 text-github-fire" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="max-w-7xl mx-auto px-4 py-20 text-center page-animate">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-neon-fire/10 border border-neon-fire/20 mb-6">
+        <svg class="w-8 h-8 text-neon-fire" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.072 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
         </svg>
       </div>
-      <h2 class="text-xl font-semibold text-github-text mb-2">Oops! Something went wrong</h2>
-      <p class="text-github-text-secondary max-w-md mx-auto mb-6">{errorMsg}</p>
-      <a href="/" class="inline-flex items-center gap-2 px-4 py-2 bg-github-accent text-github-darker rounded-lg font-medium hover:bg-github-accent/90 transition-colors">
+      <h2 class="text-xl font-semibold text-neon-text mb-2">Oops! Something went wrong</h2>
+      <p class="text-neon-text-secondary max-w-md mx-auto mb-6">{errorMsg}</p>
+      <a href="/" class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-neon-accent to-neon-cyan text-white rounded-xl font-medium hover:opacity-90 transition-opacity">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
         </svg>
         Try Again
       </a>
-      <p class="text-xs text-github-text-secondary mt-4">
+      <p class="text-xs text-neon-text-secondary mt-4">
         Tip: Set a GITHUB_TOKEN environment variable to increase API rate limits.
       </p>
     </div>
   ) : (
     <>
-      <StatsBar totalCount={totalCount} totalStars={totalStars} currentLanguage={lang} currentDays={days} />
+      <StatsBar totalCount={totalCount} totalStars={totalStars} currentLanguage={lang} currentDays={days} topLang={topLang} />
 
       <LanguageChart repos={repos} currentLanguage={lang} currentSort={sort} currentDays={days} />
 
       <main class="max-w-7xl mx-auto px-4 pb-12">
         <!-- Search box + compare hint -->
-        <div class="mb-5 flex flex-col sm:flex-row sm:items-start gap-3">
+        <div class="mb-6 flex flex-col sm:flex-row sm:items-start gap-3 page-animate" style="animation-delay: 0.2s;">
           <div class="flex-1">
             <div class="relative max-w-md">
-              <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-github-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neon-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
               </svg>
               <input
                 id="search-input"
                 type="text"
-                placeholder="Search repositories by name or description..."
-                class="w-full pl-10 pr-10 py-2.5 bg-github-card border border-github-border rounded-lg text-sm text-github-text placeholder:text-github-text-secondary focus:outline-none focus:border-github-accent transition-colors"
+                placeholder="Search repositories..."
+                class="w-full pl-10 pr-10 py-2.5 glass rounded-xl text-sm text-neon-text placeholder:text-neon-text-secondary focus:outline-none focus:border-neon-accent/50 transition-colors"
               />
-              <button id="search-clear" class="absolute right-3 top-1/2 -translate-y-1/2 text-github-text-secondary hover:text-github-text hidden cursor-pointer" title="Clear search">
+              <button id="search-clear" class="absolute right-3 top-1/2 -translate-y-1/2 text-neon-text-secondary hover:text-neon-text hidden cursor-pointer" title="Clear search">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
               </button>
             </div>
-            <p id="search-count" class="text-xs text-github-text-secondary mt-2 hidden"></p>
+            <p id="search-count" class="text-xs text-neon-text-secondary mt-2 hidden"></p>
           </div>
-          <div id="compare-hint" class="hidden sm:flex items-center gap-2 px-3 py-2 bg-github-orange/10 border border-github-orange/20 rounded-lg text-xs text-github-orange">
+          <div id="compare-hint" class="hidden sm:flex items-center gap-2 px-3 py-2 glass rounded-xl text-xs text-neon-orange border-neon-orange/20">
             <span>⚖️</span>
-            <span>点击两个仓库的 <strong>⚖️</strong> 按钮进行 AI 对比</span>
-            <button id="compare-clear-btn" class="ml-1 text-github-text-secondary hover:text-github-text cursor-pointer" title="清除选择">&times;</button>
+            <span>Click two repos' <strong>Compare</strong> to analyze</span>
+            <button id="compare-clear-btn" class="ml-1 text-neon-text-secondary hover:text-neon-text cursor-pointer" title="Clear selection">&times;</button>
           </div>
         </div>
 
@@ -129,8 +169,8 @@ const totalPages = Math.ceil(totalCount / perPage);
 
         {repos.length === 0 && (
           <div class="text-center py-20">
-            <p class="text-github-text-secondary text-lg">No repositories found for this filter.</p>
-            <a href="/" class="inline-block mt-4 text-github-accent hover:underline">View all trending repos</a>
+            <p class="text-neon-text-secondary text-lg">No repositories found for this filter.</p>
+            <a href="/" class="inline-block mt-4 text-neon-accent hover:underline">View all trending repos</a>
           </div>
         )}
 
@@ -139,10 +179,10 @@ const totalPages = Math.ceil(totalCount / perPage);
     </>
   )}
 
-  <footer class="border-t border-github-border py-6 text-center text-sm text-github-text-secondary">
+  <footer class="border-t border-neon-border py-6 text-center text-sm text-neon-text-secondary">
     <p>
-      Data from <a href="https://github.com" class="text-github-accent hover:underline" target="_blank" rel="noopener noreferrer">GitHub</a>
-      &middot; Built with <a href="https://astro.build" class="text-github-accent hover:underline" target="_blank" rel="noopener noreferrer">Astro</a>
+      Data from <a href="https://github.com" class="text-neon-accent hover:underline" target="_blank" rel="noopener noreferrer">GitHub</a>
+      &middot; Built with <a href="https://astro.build" class="text-neon-accent hover:underline" target="_blank" rel="noopener noreferrer">Astro</a>
     </p>
   </footer>
 
@@ -181,10 +221,9 @@ const totalPages = Math.ceil(totalCount / perPage);
 
       function clearCompareState() {
         compareState.selected = [];
-        // Reset all compare button styles
         document.querySelectorAll('.compare-btn').forEach(btn => {
-          btn.classList.remove('border-github-orange', 'text-github-orange', 'bg-github-orange/10');
-          btn.classList.add('border-github-border', 'text-github-text-secondary');
+          btn.classList.remove('border-neon-orange', 'text-neon-orange', 'bg-neon-orange/10');
+          btn.classList.add('border-neon-border', 'text-neon-text-secondary');
         });
         updateCompareHint();
       }
@@ -193,19 +232,17 @@ const totalPages = Math.ceil(totalCount / perPage);
         compareClearBtn.addEventListener('click', clearCompareState);
       }
 
-      // Expose compare state
       window.__getCompareState = () => ({
         selected: compareState.selected,
         clear: clearCompareState,
       });
 
       // --- AI buttons ---
-      // Helper to collect visible repos data from the DOM
       function collectVisibleRepos() {
         const cards = repoGrid.querySelectorAll('article');
         const visible = [];
         cards.forEach(card => {
-          if ((card as HTMLElement).style.display === 'none') return;
+          if (card.style.display === 'none') return;
           const aiBtn = card.querySelector('.ai-summary-btn');
           if (aiBtn) {
             try {
@@ -262,8 +299,8 @@ const totalPages = Math.ceil(totalCount / perPage);
         document.querySelectorAll(`[data-fav-btn="${fullName}"]`).forEach(btn => {
           const icon = btn.querySelector('.fav-icon');
           if (icon) icon.textContent = favs.includes(fullName) ? '★' : '☆';
-          btn.classList.toggle('text-github-orange', favs.includes(fullName));
-          btn.classList.toggle('text-github-text-secondary', !favs.includes(fullName));
+          btn.classList.toggle('text-neon-orange', favs.includes(fullName));
+          btn.classList.toggle('text-neon-text-secondary', !favs.includes(fullName));
         });
       };
 
@@ -309,8 +346,8 @@ const totalPages = Math.ceil(totalCount / perPage);
             card.style.display = '';
           }
         });
-        favoritesToggle.classList.toggle('border-github-orange', showingFavoritesOnly);
-        favoritesToggle.classList.toggle('text-github-orange', showingFavoritesOnly);
+        favoritesToggle.classList.toggle('border-neon-orange', showingFavoritesOnly);
+        favoritesToggle.classList.toggle('text-neon-orange', showingFavoritesOnly);
       });
     })();
   </script>

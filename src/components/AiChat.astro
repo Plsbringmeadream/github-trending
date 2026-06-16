@@ -6,49 +6,49 @@
   <!-- Toggle button -->
   <button
     id="ai-chat-toggle"
-    class="w-14 h-14 rounded-full bg-github-accent text-white shadow-lg hover:shadow-xl hover:bg-github-accent/90 transition-all duration-300 flex items-center justify-center text-2xl cursor-pointer"
+    class="w-14 h-14 rounded-full bg-gradient-to-br from-neon-accent to-neon-cyan text-white shadow-lg shadow-neon-accent/30 hover:shadow-xl hover:shadow-neon-accent/40 transition-all duration-300 flex items-center justify-center text-2xl cursor-pointer"
     aria-label="Open AI Chat"
   >
-    🤖
+    🧠
   </button>
 
   <!-- Chat panel -->
   <div
     id="ai-chat-panel"
-    class="hidden absolute bottom-18 right-0 w-[420px] max-w-[calc(100vw-2rem)] h-[560px] max-h-[calc(100vh-6rem)] bg-github-card border border-github-border rounded-xl shadow-2xl flex flex-col overflow-hidden"
+    class="hidden absolute bottom-18 right-0 w-[420px] max-w-[calc(100vw-2rem)] h-[560px] max-h-[calc(100vh-6rem)] glass rounded-xl shadow-2xl shadow-neon-accent/10 flex flex-col overflow-hidden"
   >
     <!-- Header -->
-    <div class="flex items-center justify-between px-4 py-3 bg-github-accent text-white rounded-t-xl shrink-0">
+    <div class="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-neon-accent to-neon-purple text-white rounded-t-xl shrink-0">
       <div class="flex items-center gap-2">
-        <span class="text-lg">🤖</span>
-        <span id="ai-chat-title" class="font-semibold text-sm">AI 仓库分析</span>
+        <span class="text-lg">🧠</span>
+        <span id="ai-chat-title" class="font-semibold text-sm">AI Insight</span>
       </div>
       <button id="ai-chat-close" class="w-7 h-7 flex items-center justify-center rounded hover:bg-white/20 transition-colors cursor-pointer text-lg leading-none">&times;</button>
     </div>
 
     <!-- Messages area -->
     <div id="ai-chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 text-sm">
-      <div class="text-github-text-secondary text-center py-8">
-        <p class="text-3xl mb-2">🔍</p>
-        <p>点击仓库卡片上的 <strong>"🤖 AI 总结"</strong> 按钮</p>
-        <p class="mt-1">或使用页面顶部的 <strong>AI 功能按钮</strong></p>
+      <div class="text-neon-text-secondary text-center py-8">
+        <p class="text-3xl mb-2">🧠</p>
+        <p>Click <strong>"AI Insight"</strong> on any repo card</p>
+        <p class="mt-1">or use the top <strong>AI buttons</strong></p>
       </div>
     </div>
 
     <!-- Input area -->
-    <div id="ai-chat-input-area" class="border-t border-github-border p-3 shrink-0 hidden">
+    <div id="ai-chat-input-area" class="border-t border-neon-border p-3 shrink-0 hidden">
       <div class="flex gap-2">
         <input
           id="ai-chat-input"
           type="text"
-          placeholder="追问 AI..."
-          class="flex-1 px-3 py-2 bg-github-darker border border-github-border rounded-lg text-sm text-github-text placeholder:text-github-text-secondary focus:outline-none focus:border-github-accent transition-colors"
+          placeholder="Ask AI..."
+          class="flex-1 px-3 py-2 bg-neon-bg border border-neon-border rounded-lg text-sm text-neon-text placeholder:text-neon-text-secondary focus:outline-none focus:border-neon-accent/50 transition-colors"
         />
         <button
           id="ai-chat-send"
-          class="px-4 py-2 bg-github-accent text-white rounded-lg text-sm font-medium hover:bg-github-accent/90 transition-colors cursor-pointer shrink-0"
+          class="px-4 py-2 bg-gradient-to-r from-neon-accent to-neon-purple text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity cursor-pointer shrink-0"
         >
-          发送
+          Send
         </button>
       </div>
     </div>
@@ -68,9 +68,9 @@
     const titleEl = document.getElementById('ai-chat-title');
 
     let currentRepo = null;
-    let chatHistory = []; // { role, content }
+    let chatHistory = [];
     let isStreaming = false;
-    let currentMode = 'summary'; // 'summary' | 'compare' | 'batch' | 'recommend'
+    let currentMode = 'summary';
 
     function togglePanel() {
       panel.classList.toggle('hidden');
@@ -85,25 +85,23 @@
     toggle.addEventListener('click', togglePanel);
     closeBtn.addEventListener('click', togglePanel);
 
-    // Render a user message bubble
     function addUserMessage(text) {
       const div = document.createElement('div');
       div.className = 'flex justify-end';
-      div.innerHTML = `<div class="max-w-[80%] bg-github-accent text-white px-3 py-2 rounded-2xl rounded-br-sm text-sm whitespace-pre-wrap">${escapeHtml(text)}</div>`;
+      div.innerHTML = `<div class="max-w-[80%] bg-gradient-to-r from-neon-accent to-neon-purple text-white px-3 py-2 rounded-2xl rounded-br-sm text-sm whitespace-pre-wrap">${escapeHtml(text)}</div>`;
       messagesEl.appendChild(div);
       scrollToBottom();
     }
 
-    // Create a streaming AI message bubble, return the content element
     function createAiMessage() {
       const wrapper = document.createElement('div');
       wrapper.className = 'flex justify-start';
       const bubble = document.createElement('div');
-      bubble.className = 'max-w-[90%] bg-github-darker border border-github-border px-3 py-2 rounded-2xl rounded-bl-sm text-sm text-github-text';
+      bubble.className = 'max-w-[90%] glass px-3 py-2 rounded-2xl rounded-bl-sm text-sm text-neon-text';
       const content = document.createElement('div');
       content.className = 'ai-content whitespace-pre-wrap';
       const cursor = document.createElement('span');
-      cursor.className = 'inline-block w-2 h-4 bg-github-accent ml-0.5 animate-pulse align-text-bottom';
+      cursor.className = 'inline-block w-2 h-4 bg-neon-accent ml-0.5 animate-pulse align-text-bottom';
       bubble.appendChild(content);
       bubble.appendChild(cursor);
       wrapper.appendChild(bubble);
@@ -122,21 +120,19 @@
       return d.innerHTML;
     }
 
-    // Simple markdown-ish rendering (bold, code, headers)
     function renderMarkdown(text) {
       return text
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/`([^`]+)`/g, '<code class="bg-github-border/40 px-1 rounded text-xs">$1</code>')
-        .replace(/^### (.+)$/gm, '<strong class="text-github-accent">$1</strong>')
-        .replace(/^## (.+)$/gm, '<strong class="text-github-accent text-base">$1</strong>')
-        .replace(/^# (.+)$/gm, '<strong class="text-github-accent text-lg">$1</strong>')
+        .replace(/`([^`]+)`/g, '<code class="bg-neon-border/40 px-1 rounded text-xs">$1</code>')
+        .replace(/^### (.+)$/gm, '<strong class="text-neon-accent">$1</strong>')
+        .replace(/^## (.+)$/gm, '<strong class="text-neon-accent text-base">$1</strong>')
+        .replace(/^# (.+)$/gm, '<strong class="text-neon-accent text-lg">$1</strong>')
         .replace(/\n/g, '<br>');
     }
 
-    // Generic SSE stream reader
     async function streamFromResponse(res, contentEl, cursorEl) {
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
@@ -159,7 +155,7 @@
           try {
             const parsed = JSON.parse(data);
             if (parsed.error) {
-              contentEl.innerHTML = `<span class="text-github-fire">❌ ${escapeHtml(parsed.error)}</span>`;
+              contentEl.innerHTML = `<span class="text-neon-fire">❌ ${escapeHtml(parsed.error)}</span>`;
               return fullText;
             }
             if (parsed.content) {
@@ -181,15 +177,14 @@
       chatHistory = [];
 
       openPanel();
-      titleEl.textContent = 'AI 仓库分析';
+      titleEl.textContent = '🧠 AI Insight';
       inputArea.classList.add('hidden');
 
-      // Clear placeholder if present
       if (messagesEl.querySelector('.text-center')) {
         messagesEl.innerHTML = '';
       }
 
-      addUserMessage(`请分析 ${repo.full_name}`);
+      addUserMessage(`Analyze ${repo.full_name}`);
       const { content, cursor } = createAiMessage();
 
       try {
@@ -201,7 +196,7 @@
 
         if (!res.ok) {
           const err = await res.json().catch(() => ({ error: 'Request failed' }));
-          content.innerHTML = `<span class="text-github-fire">❌ ${escapeHtml(err.error || 'Unknown error')}</span>`;
+          content.innerHTML = `<span class="text-neon-fire">❌ ${escapeHtml(err.error || 'Unknown error')}</span>`;
           cursor.remove();
           isStreaming = false;
           return;
@@ -209,19 +204,18 @@
 
         const fullText = await streamFromResponse(res, content, cursor);
         cursor.remove();
-        chatHistory.push({ role: 'user', content: `请分析 ${repo.full_name} 的仓库信息：${repo.description || '无'}` });
+        chatHistory.push({ role: 'user', content: `Analyze ${repo.full_name}: ${repo.description || 'No description'}` });
         chatHistory.push({ role: 'assistant', content: fullText });
         inputArea.classList.remove('hidden');
         inputEl.focus();
       } catch (err) {
-        content.innerHTML = `<span class="text-github-fire">❌ 网络错误: ${escapeHtml(err.message)}</span>`;
+        content.innerHTML = `<span class="text-neon-fire">❌ Network error: ${escapeHtml(err.message)}</span>`;
         cursor.remove();
       } finally {
         isStreaming = false;
       }
     }
 
-    // Batch summarize
     async function startBatchSummary(repos) {
       if (isStreaming || !repos.length) return;
       isStreaming = true;
@@ -230,14 +224,14 @@
       chatHistory = [];
 
       openPanel();
-      titleEl.textContent = '🤖 批量总结报告';
+      titleEl.textContent = '🧠 AI Batch Insight';
       inputArea.classList.add('hidden');
 
       if (messagesEl.querySelector('.text-center')) {
         messagesEl.innerHTML = '';
       }
 
-      addUserMessage(`分析当前页面 ${repos.length} 个仓库`);
+      addUserMessage(`Analyzing ${repos.length} repositories`);
       const { content, cursor } = createAiMessage();
 
       try {
@@ -249,7 +243,7 @@
 
         if (!res.ok) {
           const err = await res.json().catch(() => ({ error: 'Request failed' }));
-          content.innerHTML = `<span class="text-github-fire">❌ ${escapeHtml(err.error || 'Unknown error')}</span>`;
+          content.innerHTML = `<span class="text-neon-fire">❌ ${escapeHtml(err.error || 'Unknown error')}</span>`;
           cursor.remove();
           isStreaming = false;
           return;
@@ -257,19 +251,18 @@
 
         const fullText = await streamFromResponse(res, content, cursor);
         cursor.remove();
-        chatHistory.push({ role: 'user', content: `批量分析 ${repos.length} 个仓库` });
+        chatHistory.push({ role: 'user', content: `Batch analyze ${repos.length} repos` });
         chatHistory.push({ role: 'assistant', content: fullText });
         inputArea.classList.remove('hidden');
         inputEl.focus();
       } catch (err) {
-        content.innerHTML = `<span class="text-github-fire">❌ 网络错误: ${escapeHtml(err.message)}</span>`;
+        content.innerHTML = `<span class="text-neon-fire">❌ Network error: ${escapeHtml(err.message)}</span>`;
         cursor.remove();
       } finally {
         isStreaming = false;
       }
     }
 
-    // AI Recommend
     async function startRecommend(repos) {
       if (isStreaming || !repos.length) return;
       isStreaming = true;
@@ -278,14 +271,14 @@
       chatHistory = [];
 
       openPanel();
-      titleEl.textContent = '🤖 AI 推荐';
+      titleEl.textContent = '🎯 AI Picks';
       inputArea.classList.add('hidden');
 
       if (messagesEl.querySelector('.text-center')) {
         messagesEl.innerHTML = '';
       }
 
-      addUserMessage(`请根据 ${repos.length} 个仓库推荐最适合不同场景的项目`);
+      addUserMessage(`Recommend from ${repos.length} repositories`);
       const { content, cursor } = createAiMessage();
 
       try {
@@ -297,7 +290,7 @@
 
         if (!res.ok) {
           const err = await res.json().catch(() => ({ error: 'Request failed' }));
-          content.innerHTML = `<span class="text-github-fire">❌ ${escapeHtml(err.error || 'Unknown error')}</span>`;
+          content.innerHTML = `<span class="text-neon-fire">❌ ${escapeHtml(err.error || 'Unknown error')}</span>`;
           cursor.remove();
           isStreaming = false;
           return;
@@ -305,19 +298,18 @@
 
         const fullText = await streamFromResponse(res, content, cursor);
         cursor.remove();
-        chatHistory.push({ role: 'user', content: `AI 推荐分析 ${repos.length} 个仓库` });
+        chatHistory.push({ role: 'user', content: `AI recommend from ${repos.length} repos` });
         chatHistory.push({ role: 'assistant', content: fullText });
         inputArea.classList.remove('hidden');
         inputEl.focus();
       } catch (err) {
-        content.innerHTML = `<span class="text-github-fire">❌ 网络错误: ${escapeHtml(err.message)}</span>`;
+        content.innerHTML = `<span class="text-neon-fire">❌ Network error: ${escapeHtml(err.message)}</span>`;
         cursor.remove();
       } finally {
         isStreaming = false;
       }
     }
 
-    // Compare two repos
     async function startCompare(repo1, repo2) {
       if (isStreaming) return;
       isStreaming = true;
@@ -326,14 +318,14 @@
       chatHistory = [];
 
       openPanel();
-      titleEl.textContent = '⚖️ 仓库对比';
+      titleEl.textContent = '⚖️ Compare';
       inputArea.classList.add('hidden');
 
       if (messagesEl.querySelector('.text-center')) {
         messagesEl.innerHTML = '';
       }
 
-      addUserMessage(`对比 ${repo1.full_name} vs ${repo2.full_name}`);
+      addUserMessage(`Compare ${repo1.full_name} vs ${repo2.full_name}`);
       const { content, cursor } = createAiMessage();
 
       try {
@@ -345,7 +337,7 @@
 
         if (!res.ok) {
           const err = await res.json().catch(() => ({ error: 'Request failed' }));
-          content.innerHTML = `<span class="text-github-fire">❌ ${escapeHtml(err.error || 'Unknown error')}</span>`;
+          content.innerHTML = `<span class="text-neon-fire">❌ ${escapeHtml(err.error || 'Unknown error')}</span>`;
           cursor.remove();
           isStreaming = false;
           return;
@@ -353,12 +345,12 @@
 
         const fullText = await streamFromResponse(res, content, cursor);
         cursor.remove();
-        chatHistory.push({ role: 'user', content: `对比 ${repo1.full_name} 和 ${repo2.full_name}` });
+        chatHistory.push({ role: 'user', content: `Compare ${repo1.full_name} and ${repo2.full_name}` });
         chatHistory.push({ role: 'assistant', content: fullText });
         inputArea.classList.remove('hidden');
         inputEl.focus();
       } catch (err) {
-        content.innerHTML = `<span class="text-github-fire">❌ 网络错误: ${escapeHtml(err.message)}</span>`;
+        content.innerHTML = `<span class="text-neon-fire">❌ Network error: ${escapeHtml(err.message)}</span>`;
         cursor.remove();
       } finally {
         isStreaming = false;
@@ -377,7 +369,6 @@
       inputArea.classList.add('hidden');
       const { content, cursor } = createAiMessage();
 
-      // Determine which API to use based on current mode
       const apiUrl = (currentMode === 'batch' || currentMode === 'recommend') ? '/api/batch-summarize' : '/api/summarize';
       const body = (currentMode === 'batch' || currentMode === 'recommend')
         ? { repos: [], mode: currentMode }
@@ -392,7 +383,7 @@
 
         if (!res.ok) {
           const err = await res.json().catch(() => ({ error: 'Request failed' }));
-          content.innerHTML = `<span class="text-github-fire">❌ ${escapeHtml(err.error || 'Unknown error')}</span>`;
+          content.innerHTML = `<span class="text-neon-fire">❌ ${escapeHtml(err.error || 'Unknown error')}</span>`;
           cursor.remove();
           isStreaming = false;
           inputArea.classList.remove('hidden');
@@ -403,7 +394,7 @@
         cursor.remove();
         chatHistory.push({ role: 'assistant', content: fullText });
       } catch (err) {
-        content.innerHTML = `<span class="text-github-fire">❌ 网络错误: ${escapeHtml(err.message)}</span>`;
+        content.innerHTML = `<span class="text-neon-fire">❌ Network error: ${escapeHtml(err.message)}</span>`;
         cursor.remove();
       } finally {
         isStreaming = false;
@@ -420,7 +411,6 @@
       }
     });
 
-    // Expose global functions
     window.openAiSummary = startSummary;
     window.openAiBatchSummary = startBatchSummary;
     window.openAiRecommend = startRecommend;

@@ -1,44 +1,89 @@
 @import "tailwindcss";
 
 @theme {
-  --color-github-dark: #ffffff;
-  --color-github-darker: #f6f8fa;
-  --color-github-card: #ffffff;
-  --color-github-border: #d1d9e0;
-  --color-github-text: #1f2328;
-  --color-github-text-secondary: #656d76;
-  --color-github-accent: #0969da;
-  --color-github-green: #1a7f37;
-  --color-github-orange: #bf8700;
-  --color-github-fire: #cf222e;
+  --color-neon-bg: #050816;
+  --color-neon-card: rgba(15, 20, 40, 0.6);
+  --color-neon-card-solid: #0c1029;
+  --color-neon-border: rgba(99, 102, 241, 0.15);
+  --color-neon-border-hover: rgba(99, 102, 241, 0.4);
+  --color-neon-text: #e2e8f0;
+  --color-neon-text-secondary: #94a3b8;
+  --color-neon-accent: #818cf8;
+  --color-neon-cyan: #22d3ee;
+  --color-neon-green: #34d399;
+  --color-neon-orange: #f59e0b;
+  --color-neon-fire: #ef4444;
+  --color-neon-purple: #a78bfa;
+  --color-neon-gradient-start: #818cf8;
+  --color-neon-gradient-end: #22d3ee;
 }
 
 body {
-  background-color: #f6f8fa;
-  color: #1f2328;
+  background-color: #050816;
+  color: #e2e8f0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar - dark */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f6f8fa;
+  background: #050816;
 }
 ::-webkit-scrollbar-thumb {
-  background: #d1d9e0;
-  border-radius: 4px;
+  background: rgba(99, 102, 241, 0.3);
+  border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #656d76;
+  background: rgba(99, 102, 241, 0.5);
 }
 
-/* Card animation */
+/* Glass morphism utility */
+.glass {
+  background: rgba(15, 20, 40, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(99, 102, 241, 0.12);
+}
+
+.glass-hover:hover {
+  background: rgba(15, 20, 40, 0.8);
+  border-color: rgba(99, 102, 241, 0.3);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.1), 0 0 40px rgba(34, 211, 238, 0.05);
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #818cf8, #a78bfa, #22d3ee);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Gradient border effect */
+.gradient-border {
+  position: relative;
+}
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(129, 140, 248, 0.4), rgba(34, 211, 238, 0.4));
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.gradient-border:hover::before {
+  opacity: 1;
+}
+
+/* Card animation - fade in up */
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(24px);
   }
   to {
     opacity: 1;
@@ -46,42 +91,72 @@ body {
   }
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(129, 140, 248, 0.2); }
+  50% { box-shadow: 0 0 16px rgba(129, 140, 248, 0.4); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
 .card-animate {
-  animation: fadeInUp 0.4s ease-out forwards;
+  animation: fadeInUp 0.5s ease-out forwards;
   opacity: 0;
 }
 
+.page-animate {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
 /* Staggered delays */
-.card-animate:nth-child(1) { animation-delay: 0.02s; }
-.card-animate:nth-child(2) { animation-delay: 0.04s; }
-.card-animate:nth-child(3) { animation-delay: 0.06s; }
-.card-animate:nth-child(4) { animation-delay: 0.08s; }
-.card-animate:nth-child(5) { animation-delay: 0.10s; }
-.card-animate:nth-child(6) { animation-delay: 0.12s; }
-.card-animate:nth-child(7) { animation-delay: 0.14s; }
-.card-animate:nth-child(8) { animation-delay: 0.16s; }
-.card-animate:nth-child(9) { animation-delay: 0.18s; }
-.card-animate:nth-child(10) { animation-delay: 0.20s; }
-.card-animate:nth-child(11) { animation-delay: 0.22s; }
-.card-animate:nth-child(12) { animation-delay: 0.24s; }
-.card-animate:nth-child(13) { animation-delay: 0.26s; }
-.card-animate:nth-child(14) { animation-delay: 0.28s; }
-.card-animate:nth-child(15) { animation-delay: 0.30s; }
-.card-animate:nth-child(16) { animation-delay: 0.32s; }
-.card-animate:nth-child(17) { animation-delay: 0.34s; }
-.card-animate:nth-child(18) { animation-delay: 0.36s; }
-.card-animate:nth-child(19) { animation-delay: 0.38s; }
-.card-animate:nth-child(20) { animation-delay: 0.40s; }
-.card-animate:nth-child(21) { animation-delay: 0.42s; }
-.card-animate:nth-child(22) { animation-delay: 0.44s; }
-.card-animate:nth-child(23) { animation-delay: 0.46s; }
-.card-animate:nth-child(24) { animation-delay: 0.48s; }
-.card-animate:nth-child(25) { animation-delay: 0.50s; }
-.card-animate:nth-child(26) { animation-delay: 0.52s; }
-.card-animate:nth-child(27) { animation-delay: 0.54s; }
-.card-animate:nth-child(28) { animation-delay: 0.56s; }
-.card-animate:nth-child(29) { animation-delay: 0.58s; }
-.card-animate:nth-child(30) { animation-delay: 0.60s; }
+.card-animate:nth-child(1) { animation-delay: 0.03s; }
+.card-animate:nth-child(2) { animation-delay: 0.06s; }
+.card-animate:nth-child(3) { animation-delay: 0.09s; }
+.card-animate:nth-child(4) { animation-delay: 0.12s; }
+.card-animate:nth-child(5) { animation-delay: 0.15s; }
+.card-animate:nth-child(6) { animation-delay: 0.18s; }
+.card-animate:nth-child(7) { animation-delay: 0.21s; }
+.card-animate:nth-child(8) { animation-delay: 0.24s; }
+.card-animate:nth-child(9) { animation-delay: 0.27s; }
+.card-animate:nth-child(10) { animation-delay: 0.30s; }
+.card-animate:nth-child(11) { animation-delay: 0.33s; }
+.card-animate:nth-child(12) { animation-delay: 0.36s; }
+.card-animate:nth-child(13) { animation-delay: 0.39s; }
+.card-animate:nth-child(14) { animation-delay: 0.42s; }
+.card-animate:nth-child(15) { animation-delay: 0.45s; }
+.card-animate:nth-child(16) { animation-delay: 0.48s; }
+.card-animate:nth-child(17) { animation-delay: 0.51s; }
+.card-animate:nth-child(18) { animation-delay: 0.54s; }
+.card-animate:nth-child(19) { animation-delay: 0.57s; }
+.card-animate:nth-child(20) { animation-delay: 0.60s; }
+.card-animate:nth-child(21) { animation-delay: 0.63s; }
+.card-animate:nth-child(22) { animation-delay: 0.66s; }
+.card-animate:nth-child(23) { animation-delay: 0.69s; }
+.card-animate:nth-child(24) { animation-delay: 0.72s; }
+.card-animate:nth-child(25) { animation-delay: 0.75s; }
+.card-animate:nth-child(26) { animation-delay: 0.78s; }
+.card-animate:nth-child(27) { animation-delay: 0.81s; }
+.card-animate:nth-child(28) { animation-delay: 0.84s; }
+.card-animate:nth-child(29) { animation-delay: 0.87s; }
+.card-animate:nth-child(30) { animation-delay: 0.90s; }
 
 /* Hide scrollbar for filter bar */
 .scrollbar-hide {
@@ -90,4 +165,62 @@ body {
 }
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+
+/* Pill tab glow on hover */
+.pill-tab {
+  transition: all 0.25s ease;
+}
+.pill-tab:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 12px rgba(129, 140, 248, 0.3);
+}
+
+/* Button glow effect */
+.btn-glow:hover {
+  box-shadow: 0 0 16px rgba(129, 140, 248, 0.25);
+}
+
+/* Mouse glow container */
+#mouse-glow {
+  position: fixed;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(129, 140, 248, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+  transition: transform 0.15s ease-out;
+  will-change: transform;
+}
+
+/* Grid background pattern */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* Shimmer loading effect */
+.shimmer {
+  background: linear-gradient(90deg, transparent, rgba(129, 140, 241, 0.1), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Top rank special styles */
+.rank-gold {
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+}
+
+.rank-silver {
+  background: linear-gradient(135deg, #94a3b8, #cbd5e1);
+  box-shadow: 0 0 10px rgba(148, 163, 184, 0.3);
+}
+
+.rank-bronze {
+  background: linear-gradient(135deg, #d97706, #f59e0b);
+  box-shadow: 0 0 10px rgba(217, 119, 6, 0.3);
 }

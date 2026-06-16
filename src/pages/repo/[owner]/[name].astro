@@ -31,57 +31,56 @@ try {
   errorMsg = err.message || 'Failed to fetch repository';
 }
 
-const languageColor = repo ? getLanguageColor(repo.language) : '#8b949e';
+const languageColor = repo ? getLanguageColor(repo.language) : '#64748b';
 ---
 
 <Layout title={`${fullName} - GitHub Trending`} description={repo?.description || `Details for ${fullName}`}>
-  <header class="bg-github-card border-b border-github-border">
+  <header class="glass border-b border-neon-border">
     <div class="max-w-4xl mx-auto px-4 py-4 flex items-center gap-3">
-      <a href="/" class="flex items-center gap-2 text-github-text-secondary hover:text-github-accent transition-colors text-sm">
+      <a href="/" class="flex items-center gap-2 text-neon-text-secondary hover:text-neon-accent transition-colors text-sm">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
         </svg>
         Back to Trending
       </a>
-      <span class="text-github-border">/</span>
-      <span class="text-github-text font-medium truncate">{fullName}</span>
+      <span class="text-neon-border">/</span>
+      <span class="text-neon-text font-medium truncate">{fullName}</span>
     </div>
   </header>
 
   {errorMsg ? (
-    <div class="max-w-4xl mx-auto px-4 py-20 text-center">
-      <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-github-fire/10 mb-6">
-        <svg class="w-8 h-8 text-github-fire" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="max-w-4xl mx-auto px-4 py-20 text-center page-animate">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-neon-fire/10 border border-neon-fire/20 mb-6">
+        <svg class="w-8 h-8 text-neon-fire" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.072 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
         </svg>
       </div>
-      <h2 class="text-xl font-semibold text-github-text mb-2">Repository Not Found</h2>
-      <p class="text-github-text-secondary max-w-md mx-auto mb-6">{errorMsg}</p>
-      <a href="/" class="inline-flex items-center gap-2 px-4 py-2 bg-github-accent text-github-darker rounded-lg font-medium hover:bg-github-accent/90 transition-colors">
+      <h2 class="text-xl font-semibold text-neon-text mb-2">Repository Not Found</h2>
+      <p class="text-neon-text-secondary max-w-md mx-auto mb-6">{errorMsg}</p>
+      <a href="/" class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-neon-accent to-neon-cyan text-white rounded-xl font-medium hover:opacity-90 transition-opacity">
         ← Back to Trending
       </a>
     </div>
   ) : repo && (
-    <main class="max-w-4xl mx-auto px-4 py-8">
+    <main class="max-w-4xl mx-auto px-4 py-8 page-animate">
       <!-- Repo header -->
-      <div class="bg-github-card border border-github-border rounded-xl p-6 mb-6">
+      <div class="glass rounded-xl p-6 mb-6">
         <div class="flex items-start gap-4">
           <a href={`https://github.com/${owner}`} target="_blank" rel="noopener noreferrer">
-            <img src={repo.owner.avatar_url} alt={repo.owner.login} class="w-16 h-16 rounded-full border border-github-border" width="64" height="64" />
+            <img src={repo.owner.avatar_url} alt={repo.owner.login} class="w-16 h-16 rounded-full border border-neon-border" width="64" height="64" />
           </a>
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2 flex-wrap">
-              <a href={`https://github.com/${owner}`} target="_blank" rel="noopener noreferrer" class="text-github-accent hover:underline text-sm">{owner}</a>
-              <span class="text-github-border">/</span>
-              <h1 class="text-2xl font-bold text-github-text">{name}</h1>
+              <a href={`https://github.com/${owner}`} target="_blank" rel="noopener noreferrer" class="text-neon-accent hover:text-neon-cyan text-sm transition-colors">{owner}</a>
+              <span class="text-neon-border">/</span>
+              <h1 class="text-2xl font-bold text-neon-text">{name}</h1>
             </div>
-            <p class="text-github-text-secondary mt-2">{repo.description || 'No description provided'}</p>
+            <p class="text-neon-text-secondary mt-2">{repo.description || 'No description provided'}</p>
 
-            <!-- Topics -->
             {repo.topics && repo.topics.length > 0 && (
               <div class="flex flex-wrap gap-1.5 mt-3">
                 {repo.topics.map((topic: string) => (
-                  <span class="px-2.5 py-0.5 bg-github-accent/10 text-github-accent text-xs rounded-full border border-github-accent/20">{topic}</span>
+                  <span class="px-2.5 py-0.5 bg-neon-accent/8 text-neon-accent text-xs rounded-full border border-neon-accent/15">{topic}</span>
                 ))}
               </div>
             )}
@@ -89,33 +88,33 @@ const languageColor = repo ? getLanguageColor(repo.language) : '#8b949e';
         </div>
 
         <!-- Stats row -->
-        <div class="flex flex-wrap items-center gap-6 mt-6 pt-4 border-t border-github-border">
+        <div class="flex flex-wrap items-center gap-6 mt-6 pt-4 border-t border-neon-border/50">
           <div class="flex items-center gap-2">
-            <span class="text-github-orange text-lg">⭐</span>
+            <span class="text-neon-orange text-lg">⭐</span>
             <div>
-              <p class="text-lg font-bold text-github-text">{formatStars(repo.stargazers_count)}</p>
-              <p class="text-xs text-github-text-secondary">Stars</p>
+              <p class="text-lg font-bold text-neon-text">{formatStars(repo.stargazers_count)}</p>
+              <p class="text-xs text-neon-text-secondary">Stars</p>
             </div>
           </div>
           <div class="flex items-center gap-2">
-            <svg class="w-5 h-5 text-github-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 text-neon-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
             </svg>
             <div>
-              <p class="text-lg font-bold text-github-text">{formatStars(repo.forks_count)}</p>
-              <p class="text-xs text-github-text-secondary">Forks</p>
+              <p class="text-lg font-bold text-neon-text">{formatStars(repo.forks_count)}</p>
+              <p class="text-xs text-neon-text-secondary">Forks</p>
             </div>
           </div>
           {repo.language && (
             <div class="flex items-center gap-2">
               <span class="w-4 h-4 rounded-full" style={`background-color: ${languageColor}`}></span>
               <div>
-                <p class="text-lg font-bold text-github-text">{repo.language}</p>
-                <p class="text-xs text-github-text-secondary">Language</p>
+                <p class="text-lg font-bold text-neon-text">{repo.language}</p>
+                <p class="text-xs text-neon-text-secondary">Language</p>
               </div>
             </div>
           )}
-          <div class="flex items-center gap-2 ml-auto text-sm text-github-text-secondary">
+          <div class="flex items-center gap-2 ml-auto text-sm text-neon-text-secondary">
             <span>Updated {formatDate(repo.updated_at)}</span>
           </div>
         </div>
@@ -126,7 +125,7 @@ const languageColor = repo ? getLanguageColor(repo.language) : '#8b949e';
             href={repo.html_url}
             target="_blank"
             rel="noopener noreferrer"
-            class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-github-text text-white rounded-lg font-medium hover:bg-github-text/90 transition-colors text-sm"
+            class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-neon-accent to-neon-purple text-white rounded-xl font-medium hover:opacity-90 transition-opacity text-sm"
           >
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 16 16">
               <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
@@ -135,7 +134,7 @@ const languageColor = repo ? getLanguageColor(repo.language) : '#8b949e';
           </a>
           <button
             id="detail-share-btn"
-            class="px-4 py-2.5 border border-github-border rounded-lg text-github-text-secondary hover:text-github-accent hover:border-github-accent/50 transition-colors text-sm cursor-pointer"
+            class="px-4 py-2.5 glass rounded-xl text-neon-text-secondary hover:text-neon-accent hover:border-neon-accent/30 transition-colors text-sm cursor-pointer"
             data-url={repo.html_url}
           >
             📋 Share
@@ -144,32 +143,31 @@ const languageColor = repo ? getLanguageColor(repo.language) : '#8b949e';
       </div>
 
       <!-- AI Analysis section -->
-      <div class="bg-github-card border border-github-border rounded-xl p-6">
+      <div class="glass rounded-xl p-6">
         <div class="flex items-center gap-2 mb-4">
-          <span class="text-xl">🤖</span>
-          <h2 class="text-lg font-semibold text-github-text">AI Analysis</h2>
+          <span class="text-xl">🧠</span>
+          <h2 class="text-lg font-semibold text-neon-text">AI Insight</h2>
         </div>
-        <div id="ai-detail-result" class="text-sm text-github-text min-h-[60px]">
+        <div id="ai-detail-result" class="text-sm text-neon-text min-h-[60px]">
           <button
             id="ai-detail-btn"
-            class="flex items-center justify-center gap-2 px-4 py-2.5 bg-github-accent/10 border border-github-accent/20 text-github-accent rounded-lg hover:bg-github-accent/20 transition-colors text-sm font-medium cursor-pointer"
+            class="btn-glow flex items-center justify-center gap-2 px-4 py-2.5 bg-neon-accent/10 border border-neon-accent/20 text-neon-accent rounded-xl hover:bg-neon-accent/20 hover:border-neon-accent/40 transition-all text-sm font-medium cursor-pointer"
           >
-            🤖 Analyze with AI
+            🧠 Analyze with AI
           </button>
         </div>
       </div>
     </main>
   )}
 
-  <footer class="border-t border-github-border py-6 text-center text-sm text-github-text-secondary mt-auto">
+  <footer class="border-t border-neon-border py-6 text-center text-sm text-neon-text-secondary mt-auto">
     <p>
-      Data from <a href="https://github.com" class="text-github-accent hover:underline" target="_blank" rel="noopener noreferrer">GitHub</a>
-      &middot; Built with <a href="https://astro.build" class="text-github-accent hover:underline" target="_blank" rel="noopener noreferrer">Astro</a>
+      Data from <a href="https://github.com" class="text-neon-accent hover:underline" target="_blank" rel="noopener noreferrer">GitHub</a>
+      &middot; Built with <a href="https://astro.build" class="text-neon-accent hover:underline" target="_blank" rel="noopener noreferrer">Astro</a>
     </p>
   </footer>
 
   <script define:vars={{ repoData: repo ? { full_name: repo.full_name, description: repo.description, language: repo.language, stargazers_count: repo.stargazers_count, topics: repo.topics, html_url: repo.html_url } : null }}>
-    // AI Analysis
     const aiBtn = document.getElementById('ai-detail-btn');
     const aiResult = document.getElementById('ai-detail-result');
 
@@ -184,7 +182,7 @@ const languageColor = repo ? getLanguageColor(repo.language) : '#8b949e';
         aiResult.appendChild(content);
 
         const cursor = document.createElement('span');
-        cursor.className = 'inline-block w-2 h-4 bg-github-accent ml-0.5 animate-pulse align-text-bottom';
+        cursor.className = 'inline-block w-2 h-4 bg-neon-accent ml-0.5 animate-pulse align-text-bottom';
         aiResult.appendChild(cursor);
 
         try {
@@ -196,7 +194,7 @@ const languageColor = repo ? getLanguageColor(repo.language) : '#8b949e';
 
           if (!res.ok) {
             const err = await res.json().catch(() => ({ error: 'Request failed' }));
-            content.innerHTML = '<span class="text-github-fire">❌ ' + (err.error || 'Unknown error') + '</span>';
+            content.innerHTML = '<span class="text-neon-fire">❌ ' + (err.error || 'Unknown error') + '</span>';
             cursor.remove();
             return;
           }
@@ -230,7 +228,7 @@ const languageColor = repo ? getLanguageColor(repo.language) : '#8b949e';
           }
           cursor.remove();
         } catch (err) {
-          content.innerHTML = '<span class="text-github-fire">❌ Network error: ' + err.message + '</span>';
+          content.innerHTML = '<span class="text-neon-fire">❌ Network error: ' + err.message + '</span>';
           cursor.remove();
         }
       });
@@ -242,14 +240,13 @@ const languageColor = repo ? getLanguageColor(repo.language) : '#8b949e';
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/`([^`]+)`/g, '<code class="bg-github-border/40 px-1 rounded text-xs">$1</code>')
-        .replace(/^### (.+)$/gm, '<strong class="text-github-accent">$1</strong>')
-        .replace(/^## (.+)$/gm, '<strong class="text-github-accent text-base">$1</strong>')
-        .replace(/^# (.+)$/gm, '<strong class="text-github-accent text-lg">$1</strong>')
+        .replace(/`([^`]+)`/g, '<code class="bg-neon-border/40 px-1 rounded text-xs">$1</code>')
+        .replace(/^### (.+)$/gm, '<strong class="text-neon-accent">$1</strong>')
+        .replace(/^## (.+)$/gm, '<strong class="text-neon-accent text-base">$1</strong>')
+        .replace(/^# (.+)$/gm, '<strong class="text-neon-accent text-lg">$1</strong>')
         .replace(/\n/g, '<br>');
     }
 
-    // Share button
     const shareBtn = document.getElementById('detail-share-btn');
     if (shareBtn) {
       shareBtn.addEventListener('click', async () => {
@@ -257,8 +254,8 @@ const languageColor = repo ? getLanguageColor(repo.language) : '#8b949e';
         try {
           await navigator.clipboard.writeText(url);
           const toast = document.createElement('div');
-          toast.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-github-text text-white px-4 py-2 rounded-lg text-sm shadow-lg';
-          toast.textContent = '✅ Link copied to clipboard!';
+          toast.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 z-50 glass px-4 py-2 rounded-xl text-sm shadow-lg text-neon-green border-neon-green/20';
+          toast.textContent = '✅ Link copied!';
           document.body.appendChild(toast);
           setTimeout(() => toast.remove(), 2000);
         } catch {}

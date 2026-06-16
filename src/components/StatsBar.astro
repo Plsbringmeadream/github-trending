@@ -4,62 +4,82 @@ interface Props {
   totalStars: number;
   currentLanguage: string;
   currentDays: number;
+  topLang?: string;
 }
 
-const { totalCount, totalStars, currentLanguage, currentDays = 30 } = Astro.props;
+const { totalCount, totalStars, currentLanguage, currentDays = 30, topLang = 'N/A' } = Astro.props;
 
 function formatBigNumber(n: number): string {
   if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
   if (n >= 1_000) return (n / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
   return n.toString();
 }
+
+const stats = [
+  {
+    icon: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>`,
+    value: formatBigNumber(totalCount),
+    label: 'Trending Repos',
+    gradient: 'from-neon-accent to-neon-purple',
+    glow: 'rgba(129,140,248,0.15)',
+  },
+  {
+    icon: `<span class="text-lg">⭐</span>`,
+    value: formatBigNumber(totalStars),
+    label: 'Total Stars',
+    gradient: 'from-neon-orange to-amber-400',
+    glow: 'rgba(245,158,11,0.15)',
+  },
+  {
+    icon: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>`,
+    value: `${currentDays}d`,
+    label: 'Time Window',
+    gradient: 'from-neon-green to-emerald-400',
+    glow: 'rgba(52,211,153,0.15)',
+  },
+  {
+    icon: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>`,
+    value: topLang,
+    label: 'Top Language',
+    gradient: 'from-neon-cyan to-sky-400',
+    glow: 'rgba(34,211,238,0.15)',
+  },
+];
 ---
 
-<div class="max-w-7xl mx-auto px-4 py-6">
-  <div class="flex flex-wrap items-center gap-6">
-    <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-lg bg-github-accent/10 flex items-center justify-center">
-        <svg class="w-5 h-5 text-github-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-        </svg>
+<div class="max-w-7xl mx-auto px-4 py-6 page-animate" style="animation-delay: 0.1s;">
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    {stats.map((stat) => (
+      <div
+        class="glass rounded-xl p-4 hover:border-neon-border-hover transition-all duration-300 group cursor-default"
+        style={`--card-glow: ${stat.glow}`}
+      >
+        <div class="flex items-center gap-3">
+          <div class={`w-10 h-10 rounded-lg bg-gradient-to-br ${stat.gradient} flex items-center justify-center text-white shrink-0 opacity-80 group-hover:opacity-100 transition-opacity`}>
+            <Fragment set:html={stat.icon} />
+          </div>
+          <div class="min-w-0">
+            <p class="text-2xl font-bold text-neon-text tracking-tight">{stat.value}</p>
+            <p class="text-xs text-neon-text-secondary truncate">{stat.label}</p>
+          </div>
+        </div>
+        {/* Gradient bottom edge */}
+        <div class={`mt-3 h-0.5 rounded-full bg-gradient-to-r ${stat.gradient} opacity-30 group-hover:opacity-60 transition-opacity`}></div>
       </div>
-      <div>
-        <p class="text-2xl font-bold text-github-text">{formatBigNumber(totalCount)}</p>
-        <p class="text-xs text-github-text-secondary">Trending Repos</p>
-      </div>
-    </div>
+    ))}
+  </div>
 
-    <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-lg bg-github-orange/10 flex items-center justify-center">
-        <span class="text-lg">⭐</span>
-      </div>
-      <div>
-        <p class="text-2xl font-bold text-github-text">{formatBigNumber(totalStars)}</p>
-        <p class="text-xs text-github-text-secondary">Total Stars</p>
-      </div>
-    </div>
-
-    <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-lg bg-github-green/10 flex items-center justify-center">
-        <svg class="w-5 h-5 text-github-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-        </svg>
-      </div>
-      <div>
-        <p class="text-2xl font-bold text-github-text">{currentDays}d</p>
-        <p class="text-xs text-github-text-secondary">Time Window</p>
-      </div>
-    </div>
-
-    {currentLanguage !== 'All' && (
-      <div class="ml-auto flex items-center gap-2 px-3 py-1.5 bg-github-accent/10 border border-github-accent/20 rounded-full">
-        <span class="text-sm text-github-accent font-medium">{currentLanguage}</span>
-        <a href="/" class="text-github-text-secondary hover:text-github-text transition-colors" title="Clear filter">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  {currentLanguage !== 'All' && (
+    <div class="mt-4 flex items-center gap-2">
+      <span class="text-xs text-neon-text-secondary">Filtered by:</span>
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full bg-neon-accent/10 text-neon-accent border border-neon-accent/20">
+        {currentLanguage}
+        <a href="/" class="hover:text-white transition-colors" title="Clear filter">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
         </a>
-      </div>
-    )}
-  </div>
+      </span>
+    </div>
+  )}
 </div>
