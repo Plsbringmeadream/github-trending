@@ -55,8 +55,10 @@ const topLang = Object.entries(langCounts).sort((a, b) => b[1] - a[1])[0]?.[0] |
 <Layout title="GitHub Trending - AI-Powered Repository Discovery">
   <!-- Hero Section -->
   <header class="relative overflow-hidden" style="border-bottom: 1px solid var(--border);">
+    <!-- SVG background -->
+    <div class="absolute inset-0" style="background-image: url('/hero-bg.svg'); background-size: cover; background-position: center; opacity: 0.8;"></div>
     <!-- Animated glow background -->
-    <div class="absolute inset-0 opacity-30">
+    <div class="absolute inset-0 opacity-40">
       <div class="absolute inset-0" style="background: radial-gradient(ellipse at 30% 20%, var(--hero-glow-1) 0%, transparent 50%);"></div>
       <div class="absolute inset-0" style="background: radial-gradient(ellipse at 70% 80%, var(--hero-glow-2) 0%, transparent 50%);"></div>
     </div>

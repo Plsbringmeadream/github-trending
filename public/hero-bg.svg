@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="600" viewBox="0 0 1920 600">
+  <defs>
+    <!-- Grid pattern -->
+    <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(99,102,241,0.06)" stroke-width="0.5"/>
+    </pattern>
+    <!-- Purple glow -->
+    <radialGradient id="glow1" cx="25%" cy="40%" r="35%">
+      <stop offset="0%" stop-color="rgba(129,140,248,0.12)"/>
+      <stop offset="100%" stop-color="transparent"/>
+    </radialGradient>
+    <!-- Cyan glow -->
+    <radialGradient id="glow2" cx="75%" cy="60%" r="30%">
+      <stop offset="0%" stop-color="rgba(34,211,238,0.08)"/>
+      <stop offset="100%" stop-color="transparent"/>
+    </radialGradient>
+    <!-- Soft pink glow -->
+    <radialGradient id="glow3" cx="50%" cy="20%" r="25%">
+      <stop offset="0%" stop-color="rgba(167,139,250,0.08)"/>
+      <stop offset="100%" stop-color="transparent"/>
+    </radialGradient>
+    <!-- Node glow filter -->
+    <filter id="nodeGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Base -->
+  <rect width="1920" height="600" fill="#f8f9fb"/>
+  
+  <!-- Grid -->
+  <rect width="1920" height="600" fill="url(#grid)"/>
+  
+  <!-- Glows -->
+  <rect width="1920" height="600" fill="url(#glow1)"/>
+  <rect width="1920" height="600" fill="url(#glow2)"/>
+  <rect width="1920" height="600" fill="url(#glow3)"/>
+
+  <!-- Data connection lines -->
+  <g stroke="rgba(99,102,241,0.08)" stroke-width="1" fill="none">
+    <line x1="200" y1="150" x2="380" y2="280"/>
+    <line x1="380" y1="280" x2="520" y2="180"/>
+    <line x1="520" y1="180" x2="700" y2="320"/>
+    <line x1="700" y1="320" x2="900" y2="200"/>
+    <line x1="900" y1="200" x2="1100" y2="350"/>
+    <line x1="1100" y1="350" x2="1300" y2="220"/>
+    <line x1="1300" y1="220" x2="1500" y2="380"/>
+    <line x1="1500" y1="380" x2="1700" y2="250"/>
+    <!-- Cross connections -->
+    <line x1="200" y1="150" x2="520" y2="180"/>
+    <line x1="380" y1="280" x2="700" y2="320"/>
+    <line x1="700" y1="320" x2="1100" y2="350"/>
+    <line x1="1100" y1="350" x2="1500" y2="380"/>
+    <line x1="520" y1="180" x2="900" y2="200"/>
+    <line x1="900" y1="200" x2="1300" y2="220"/>
+    <line x1="1300" y1="220" x2="1700" y2="250"/>
+  </g>
+
+  <!-- Data nodes (glowing dots) -->
+  <g filter="url(#nodeGlow)">
+    <circle cx="200" cy="150" r="3" fill="rgba(129,140,248,0.5)"/>
+    <circle cx="380" cy="280" r="4" fill="rgba(34,211,238,0.4)"/>
+    <circle cx="520" cy="180" r="3.5" fill="rgba(167,139,250,0.5)"/>
+    <circle cx="700" cy="320" r="3" fill="rgba(129,140,248,0.4)"/>
+    <circle cx="900" cy="200" r="4.5" fill="rgba(34,211,238,0.5)"/>
+    <circle cx="1100" cy="350" r="3" fill="rgba(167,139,250,0.4)"/>
+    <circle cx="1300" cy="220" r="4" fill="rgba(129,140,248,0.5)"/>
+    <circle cx="1500" cy="380" r="3.5" fill="rgba(34,211,238,0.4)"/>
+    <circle cx="1700" cy="250" r="3" fill="rgba(167,139,250,0.5)"/>
+    <!-- Extra scattered nodes -->
+    <circle cx="150" cy="400" r="2" fill="rgba(99,102,241,0.3)"/>
+    <circle cx="450" cy="450" r="2.5" fill="rgba(129,140,248,0.3)"/>
+    <circle cx="750" cy="120" r="2" fill="rgba(34,211,238,0.3)"/>
+    <circle cx="1050" cy="480" r="2.5" fill="rgba(167,139,250,0.3)"/>
+    <circle cx="1350" cy="100" r="2" fill="rgba(129,140,248,0.3)"/>
+    <circle cx="1650" cy="470" r="2" fill="rgba(34,211,238,0.3)"/>
+    <circle cx="1800" cy="130" r="2.5" fill="rgba(167,139,250,0.3)"/>
+  </g>
+
+  <!-- Subtle code symbols -->
+  <g fill="rgba(99,102,241,0.04)" font-family="monospace" font-size="28">
+    <text x="120" y="500">&lt;/&gt;</text>
+    <text x="480" y="80">{ }</text>
+    <text x="850" y="520">[ ]</text>
+    <text x="1200" y="90">( )</text>
+    <text x="1550" y="500">=&gt;</text>
+    <text x="1780" y="400">#</text>
+  </g>
+
+  <!-- Subtle star symbols -->
+  <g fill="rgba(245,158,11,0.06)" font-family="sans-serif" font-size="20">
+    <text x="300" y="100">★</text>
+    <text x="650" y="480">★</text>
+    <text x="1000" y="100">★</text>
+    <text x="1400" y="490">★</text>
+    <text x="1750" y="80">★</text>
+  </g>
+</svg>
