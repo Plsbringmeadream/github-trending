@@ -1,4 +1,7 @@
 ---
+import ScrollProgress from '../components/ScrollProgress.astro';
+import BackToTop from '../components/BackToTop.astro';
+
 interface Props {
   title: string;
   description?: string;
@@ -24,10 +27,12 @@ const { title, description = "Discover the hottest GitHub repositories from the 
     <meta name="twitter:description" content={description} />
   </head>
   <body class="min-h-screen font-sans grid-bg relative" style="background-color: var(--bg); color: var(--text);">
+    <ScrollProgress />
     <div id="mouse-glow"></div>
     <div class="relative z-10">
       <slot />
     </div>
+    <BackToTop />
   </body>
 </html>
 

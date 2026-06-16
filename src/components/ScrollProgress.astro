@@ -1,0 +1,24 @@
+---
+// ScrollProgress.astro - Top scroll progress bar
+---
+
+<div id="scroll-progress" class="fixed top-0 left-0 z-[100] h-[3px] w-0 transition-[width] duration-100" style="background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));"></div>
+
+<script>
+  const bar = document.getElementById('scroll-progress');
+  if (bar) {
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const scrollTop = document.documentElement.scrollTop;
+          const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+          const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+          bar.style.width = progress + '%';
+          ticking = false;
+        });
+        ticking = true;
+      }
+    });
+  }
+</script>
