@@ -16,7 +16,7 @@ const DAYS_OPTIONS = [
 ];
 ---
 
-<div class="sticky top-0 z-50 glass border-b border-neon-border">
+<div class="sticky top-0 z-50 glass" style="border-bottom: 1px solid var(--border);">
   <div class="max-w-7xl mx-auto px-4 py-3">
     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
       <!-- Language filters -->
@@ -27,9 +27,12 @@ const DAYS_OPTIONS = [
             class:list={[
               'pill-tab px-3 py-1.5 text-sm rounded-full whitespace-nowrap transition-all duration-250',
               currentLanguage === lang
-                ? 'bg-gradient-to-r from-neon-accent to-neon-purple text-white font-semibold shadow-lg shadow-neon-accent/20'
-                : 'glass text-neon-text-secondary hover:text-neon-text hover:border-neon-accent/30',
+                ? 'text-white font-semibold shadow-lg'
+                : 'glass',
             ]}
+            style={currentLanguage === lang
+              ? 'background: linear-gradient(135deg, var(--gradient-start), var(--purple)); color: #fff; box-shadow: 0 4px 12px rgba(99,102,241,0.3);'
+              : 'color: var(--text-secondary);'}
           >
             {lang}
           </a>
@@ -45,10 +48,11 @@ const DAYS_OPTIONS = [
               href={`/?lang=${encodeURIComponent(currentLanguage)}&sort=${currentSort}&days=${opt.value}`}
               class:list={[
                 'px-3 py-1.5 text-sm transition-all duration-200 whitespace-nowrap',
-                currentDays === opt.value
-                  ? 'bg-gradient-to-r from-neon-green to-emerald-400 text-white font-semibold'
-                  : 'text-neon-text-secondary hover:text-neon-text hover:bg-white/5',
+                currentDays === opt.value ? 'text-white font-semibold' : '',
               ]}
+              style={currentDays === opt.value
+                ? 'background: linear-gradient(135deg, var(--green), #34d399); color: #fff;'
+                : 'color: var(--text-secondary);'}
             >
               {opt.label}
             </a>
@@ -59,7 +63,8 @@ const DAYS_OPTIONS = [
         <div class="relative">
           <select
             id="sort-select"
-            class="appearance-none glass text-neon-text text-sm rounded-xl px-4 py-2 pr-8 cursor-pointer hover:border-neon-accent/30 focus:border-neon-accent/50 focus:outline-none transition-colors"
+            class="appearance-none glass text-sm rounded-xl px-4 py-2 pr-8 cursor-pointer focus:outline-none transition-colors"
+            style="color: var(--text);"
             onchange={`window.location.href='/?lang=${encodeURIComponent(currentLanguage)}&days=${currentDays}&sort='+this.value`}
           >
             {SORT_OPTIONS.map((opt) => (
@@ -68,7 +73,7 @@ const DAYS_OPTIONS = [
               </option>
             ))}
           </select>
-          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-neon-text-secondary">
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2" style="color: var(--text-secondary);">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
             </svg>

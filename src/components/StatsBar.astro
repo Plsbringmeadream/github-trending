@@ -20,29 +20,25 @@ const stats = [
     icon: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>`,
     value: formatBigNumber(totalCount),
     label: 'Trending Repos',
-    gradient: 'from-neon-accent to-neon-purple',
-    glow: 'rgba(129,140,248,0.15)',
+    gradient: 'var(--gradient-start), var(--purple)',
   },
   {
     icon: `<span class="text-lg">⭐</span>`,
     value: formatBigNumber(totalStars),
     label: 'Total Stars',
-    gradient: 'from-neon-orange to-amber-400',
-    glow: 'rgba(245,158,11,0.15)',
+    gradient: 'var(--orange), #fbbf24',
   },
   {
     icon: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>`,
     value: `${currentDays}d`,
     label: 'Time Window',
-    gradient: 'from-neon-green to-emerald-400',
-    glow: 'rgba(52,211,153,0.15)',
+    gradient: 'var(--green), #34d399',
   },
   {
     icon: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>`,
     value: topLang,
     label: 'Top Language',
-    gradient: 'from-neon-cyan to-sky-400',
-    glow: 'rgba(34,211,238,0.15)',
+    gradient: 'var(--cyan), #0ea5e9',
   },
 ];
 ---
@@ -50,31 +46,27 @@ const stats = [
 <div class="max-w-7xl mx-auto px-4 py-6 page-animate" style="animation-delay: 0.1s;">
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
     {stats.map((stat) => (
-      <div
-        class="glass rounded-xl p-4 hover:border-neon-border-hover transition-all duration-300 group cursor-default"
-        style={`--card-glow: ${stat.glow}`}
-      >
+      <div class="glass rounded-xl p-4 transition-all duration-300 group cursor-default hover:border-[var(--border-hover)]">
         <div class="flex items-center gap-3">
-          <div class={`w-10 h-10 rounded-lg bg-gradient-to-br ${stat.gradient} flex items-center justify-center text-white shrink-0 opacity-80 group-hover:opacity-100 transition-opacity`}>
+          <div class="w-10 h-10 rounded-lg flex items-center justify-center text-white shrink-0 opacity-80 group-hover:opacity-100 transition-opacity" style={`background: linear-gradient(135deg, ${stat.gradient});`}>
             <Fragment set:html={stat.icon} />
           </div>
           <div class="min-w-0">
-            <p class="text-2xl font-bold text-neon-text tracking-tight">{stat.value}</p>
-            <p class="text-xs text-neon-text-secondary truncate">{stat.label}</p>
+            <p class="text-2xl font-bold tracking-tight" style="color: var(--text);">{stat.value}</p>
+            <p class="text-xs truncate" style="color: var(--text-secondary);">{stat.label}</p>
           </div>
         </div>
-        {/* Gradient bottom edge */}
-        <div class={`mt-3 h-0.5 rounded-full bg-gradient-to-r ${stat.gradient} opacity-30 group-hover:opacity-60 transition-opacity`}></div>
+        <div class="mt-3 h-0.5 rounded-full opacity-30 group-hover:opacity-60 transition-opacity" style={`background: linear-gradient(90deg, ${stat.gradient});`}></div>
       </div>
     ))}
   </div>
 
   {currentLanguage !== 'All' && (
     <div class="mt-4 flex items-center gap-2">
-      <span class="text-xs text-neon-text-secondary">Filtered by:</span>
-      <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full bg-neon-accent/10 text-neon-accent border border-neon-accent/20">
+      <span class="text-xs" style="color: var(--text-secondary);">Filtered by:</span>
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full" style="background: rgba(99,102,241,0.1); color: var(--accent); border: 1px solid rgba(99,102,241,0.2);">
         {currentLanguage}
-        <a href="/" class="hover:text-white transition-colors" title="Clear filter">
+        <a href="/" class="hover:opacity-80 transition-opacity" title="Clear filter">
           <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>

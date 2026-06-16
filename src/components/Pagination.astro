@@ -39,7 +39,8 @@ if (endPage < totalPages) {
     {currentPage > 1 && (
       <a
         href={getPageUrl(currentPage - 1)}
-        class="px-3 py-2 glass rounded-lg text-neon-text-secondary hover:text-neon-text hover:border-neon-accent/30 transition-colors text-sm"
+        class="px-3 py-2 glass rounded-lg text-sm hover:opacity-80 transition-colors"
+        style="color: var(--text-secondary);"
         aria-label="Previous page"
       >
         ← Prev
@@ -52,23 +53,25 @@ if (endPage < totalPages) {
           href={getPageUrl(page)}
           class:list={[
             'px-3 py-2 rounded-lg text-sm transition-all duration-200 min-w-[36px] text-center',
-            page === currentPage
-              ? 'bg-gradient-to-r from-neon-accent to-neon-purple text-white font-semibold shadow-lg shadow-neon-accent/20'
-              : 'glass text-neon-text-secondary hover:text-neon-text hover:border-neon-accent/30',
+            page === currentPage ? 'text-white font-semibold shadow-lg' : 'glass hover:opacity-80',
           ]}
+          style={page === currentPage
+            ? 'background: linear-gradient(135deg, var(--gradient-start), var(--purple)); box-shadow: 0 4px 12px rgba(99,102,241,0.3);'
+            : 'color: var(--text-secondary);'}
           aria-current={page === currentPage ? 'page' : undefined}
         >
           {page}
         </a>
       ) : (
-        <span class="px-2 text-neon-text-secondary">…</span>
+        <span class="px-2" style="color: var(--text-secondary);">…</span>
       )
     ))}
 
     {currentPage < totalPages && (
       <a
         href={getPageUrl(currentPage + 1)}
-        class="px-3 py-2 glass rounded-lg text-neon-text-secondary hover:text-neon-text hover:border-neon-accent/30 transition-colors text-sm"
+        class="px-3 py-2 glass rounded-lg text-sm hover:opacity-80 transition-colors"
+        style="color: var(--text-secondary);"
         aria-label="Next page"
       >
         Next →

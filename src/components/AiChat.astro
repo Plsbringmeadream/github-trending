@@ -3,22 +3,20 @@
 ---
 
 <div id="ai-chat-container" class="fixed bottom-4 right-4 z-50 font-sans">
-  <!-- Toggle button -->
   <button
     id="ai-chat-toggle"
-    class="w-14 h-14 rounded-full bg-gradient-to-br from-neon-accent to-neon-cyan text-white shadow-lg shadow-neon-accent/30 hover:shadow-xl hover:shadow-neon-accent/40 transition-all duration-300 flex items-center justify-center text-2xl cursor-pointer"
+    class="w-14 h-14 rounded-full text-white shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center text-2xl cursor-pointer"
+    style="background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end)); box-shadow: 0 4px 16px rgba(99,102,241,0.3);"
     aria-label="Open AI Chat"
   >
     🧠
   </button>
 
-  <!-- Chat panel -->
   <div
     id="ai-chat-panel"
-    class="hidden absolute bottom-18 right-0 w-[420px] max-w-[calc(100vw-2rem)] h-[560px] max-h-[calc(100vh-6rem)] glass rounded-xl shadow-2xl shadow-neon-accent/10 flex flex-col overflow-hidden"
+    class="hidden absolute bottom-18 right-0 w-[420px] max-w-[calc(100vw-2rem)] h-[560px] max-h-[calc(100vh-6rem)] glass rounded-xl shadow-2xl flex flex-col overflow-hidden"
   >
-    <!-- Header -->
-    <div class="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-neon-accent to-neon-purple text-white rounded-t-xl shrink-0">
+    <div class="flex items-center justify-between px-4 py-3 text-white rounded-t-xl shrink-0" style="background: linear-gradient(135deg, var(--gradient-start), var(--purple));">
       <div class="flex items-center gap-2">
         <span class="text-lg">🧠</span>
         <span id="ai-chat-title" class="font-semibold text-sm">AI Insight</span>
@@ -26,27 +24,27 @@
       <button id="ai-chat-close" class="w-7 h-7 flex items-center justify-center rounded hover:bg-white/20 transition-colors cursor-pointer text-lg leading-none">&times;</button>
     </div>
 
-    <!-- Messages area -->
     <div id="ai-chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 text-sm">
-      <div class="text-neon-text-secondary text-center py-8">
+      <div class="text-center py-8" style="color: var(--text-secondary);">
         <p class="text-3xl mb-2">🧠</p>
         <p>Click <strong>"AI Insight"</strong> on any repo card</p>
         <p class="mt-1">or use the top <strong>AI buttons</strong></p>
       </div>
     </div>
 
-    <!-- Input area -->
-    <div id="ai-chat-input-area" class="border-t border-neon-border p-3 shrink-0 hidden">
+    <div id="ai-chat-input-area" class="p-3 shrink-0 hidden" style="border-top: 1px solid var(--border);">
       <div class="flex gap-2">
         <input
           id="ai-chat-input"
           type="text"
           placeholder="Ask AI..."
-          class="flex-1 px-3 py-2 bg-neon-bg border border-neon-border rounded-lg text-sm text-neon-text placeholder:text-neon-text-secondary focus:outline-none focus:border-neon-accent/50 transition-colors"
+          class="flex-1 px-3 py-2 rounded-lg text-sm focus:outline-none transition-colors"
+          style="background: var(--bg); border: 1px solid var(--border); color: var(--text);"
         />
         <button
           id="ai-chat-send"
-          class="px-4 py-2 bg-gradient-to-r from-neon-accent to-neon-purple text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity cursor-pointer shrink-0"
+          class="px-4 py-2 text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity cursor-pointer shrink-0"
+          style="background: linear-gradient(135deg, var(--gradient-start), var(--purple));"
         >
           Send
         </button>
@@ -88,7 +86,11 @@
     function addUserMessage(text) {
       const div = document.createElement('div');
       div.className = 'flex justify-end';
-      div.innerHTML = `<div class="max-w-[80%] bg-gradient-to-r from-neon-accent to-neon-purple text-white px-3 py-2 rounded-2xl rounded-br-sm text-sm whitespace-pre-wrap">${escapeHtml(text)}</div>`;
+      const bubble = document.createElement('div');
+      bubble.className = 'max-w-[80%] text-white px-3 py-2 rounded-2xl rounded-br-sm text-sm whitespace-pre-wrap';
+      bubble.style.background = 'linear-gradient(135deg, var(--gradient-start), var(--purple))';
+      bubble.textContent = text;
+      div.appendChild(bubble);
       messagesEl.appendChild(div);
       scrollToBottom();
     }
@@ -97,11 +99,13 @@
       const wrapper = document.createElement('div');
       wrapper.className = 'flex justify-start';
       const bubble = document.createElement('div');
-      bubble.className = 'max-w-[90%] glass px-3 py-2 rounded-2xl rounded-bl-sm text-sm text-neon-text';
+      bubble.className = 'max-w-[90%] glass px-3 py-2 rounded-2xl rounded-bl-sm text-sm';
+      bubble.style.color = 'var(--text)';
       const content = document.createElement('div');
       content.className = 'ai-content whitespace-pre-wrap';
       const cursor = document.createElement('span');
-      cursor.className = 'inline-block w-2 h-4 bg-neon-accent ml-0.5 animate-pulse align-text-bottom';
+      cursor.className = 'inline-block w-2 h-4 ml-0.5 animate-pulse align-text-bottom';
+      cursor.style.background = 'var(--accent)';
       bubble.appendChild(content);
       bubble.appendChild(cursor);
       wrapper.appendChild(bubble);
@@ -126,10 +130,10 @@
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/`([^`]+)`/g, '<code class="bg-neon-border/40 px-1 rounded text-xs">$1</code>')
-        .replace(/^### (.+)$/gm, '<strong class="text-neon-accent">$1</strong>')
-        .replace(/^## (.+)$/gm, '<strong class="text-neon-accent text-base">$1</strong>')
-        .replace(/^# (.+)$/gm, '<strong class="text-neon-accent text-lg">$1</strong>')
+        .replace(/`([^`]+)`/g, '<code style="background: var(--code-bg); padding: 0 4px; border-radius: 3px; font-size: 0.75rem;">$1</code>')
+        .replace(/^### (.+)$/gm, '<strong style="color: var(--accent);">$1</strong>')
+        .replace(/^## (.+)$/gm, '<strong style="color: var(--accent); font-size: 1rem;">$1</strong>')
+        .replace(/^# (.+)$/gm, '<strong style="color: var(--accent); font-size: 1.125rem;">$1</strong>')
         .replace(/\n/g, '<br>');
     }
 
@@ -142,7 +146,6 @@
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split('\n');
         buffer = lines.pop() || '';
@@ -155,7 +158,7 @@
           try {
             const parsed = JSON.parse(data);
             if (parsed.error) {
-              contentEl.innerHTML = `<span class="text-neon-fire">❌ ${escapeHtml(parsed.error)}</span>`;
+              contentEl.innerHTML = `<span style="color: var(--fire);">❌ ${escapeHtml(parsed.error)}</span>`;
               return fullText;
             }
             if (parsed.content) {
@@ -163,7 +166,7 @@
               contentEl.innerHTML = renderMarkdown(fullText);
               scrollToBottom();
             }
-          } catch { /* skip */ }
+          } catch {}
         }
       }
       return fullText;
@@ -180,9 +183,7 @@
       titleEl.textContent = '🧠 AI Insight';
       inputArea.classList.add('hidden');
 
-      if (messagesEl.querySelector('.text-center')) {
-        messagesEl.innerHTML = '';
-      }
+      if (messagesEl.querySelector('.text-center')) messagesEl.innerHTML = '';
 
       addUserMessage(`Analyze ${repo.full_name}`);
       const { content, cursor } = createAiMessage();
@@ -193,223 +194,97 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ repo, history: [] }),
         });
-
         if (!res.ok) {
           const err = await res.json().catch(() => ({ error: 'Request failed' }));
-          content.innerHTML = `<span class="text-neon-fire">❌ ${escapeHtml(err.error || 'Unknown error')}</span>`;
-          cursor.remove();
-          isStreaming = false;
-          return;
+          content.innerHTML = `<span style="color: var(--fire);">❌ ${escapeHtml(err.error || 'Unknown error')}</span>`;
+          cursor.remove(); isStreaming = false; return;
         }
-
         const fullText = await streamFromResponse(res, content, cursor);
         cursor.remove();
-        chatHistory.push({ role: 'user', content: `Analyze ${repo.full_name}: ${repo.description || 'No description'}` });
+        chatHistory.push({ role: 'user', content: `Analyze ${repo.full_name}: ${repo.description || ''}` });
         chatHistory.push({ role: 'assistant', content: fullText });
         inputArea.classList.remove('hidden');
         inputEl.focus();
       } catch (err) {
-        content.innerHTML = `<span class="text-neon-fire">❌ Network error: ${escapeHtml(err.message)}</span>`;
+        content.innerHTML = `<span style="color: var(--fire);">❌ Network error: ${escapeHtml(err.message)}</span>`;
         cursor.remove();
-      } finally {
-        isStreaming = false;
-      }
+      } finally { isStreaming = false; }
     }
 
     async function startBatchSummary(repos) {
       if (isStreaming || !repos.length) return;
-      isStreaming = true;
-      currentMode = 'batch';
-      currentRepo = null;
-      chatHistory = [];
-
-      openPanel();
-      titleEl.textContent = '🧠 AI Batch Insight';
-      inputArea.classList.add('hidden');
-
-      if (messagesEl.querySelector('.text-center')) {
-        messagesEl.innerHTML = '';
-      }
-
+      isStreaming = true; currentMode = 'batch'; currentRepo = null; chatHistory = [];
+      openPanel(); titleEl.textContent = '🧠 AI Batch Insight'; inputArea.classList.add('hidden');
+      if (messagesEl.querySelector('.text-center')) messagesEl.innerHTML = '';
       addUserMessage(`Analyzing ${repos.length} repositories`);
       const { content, cursor } = createAiMessage();
-
       try {
-        const res = await fetch('/api/batch-summarize', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ repos, mode: 'batch' }),
-        });
-
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({ error: 'Request failed' }));
-          content.innerHTML = `<span class="text-neon-fire">❌ ${escapeHtml(err.error || 'Unknown error')}</span>`;
-          cursor.remove();
-          isStreaming = false;
-          return;
-        }
-
-        const fullText = await streamFromResponse(res, content, cursor);
-        cursor.remove();
+        const res = await fetch('/api/batch-summarize', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ repos, mode: 'batch' }) });
+        if (!res.ok) { const err = await res.json().catch(() => ({ error: 'Request failed' })); content.innerHTML = `<span style="color: var(--fire);">❌ ${escapeHtml(err.error || 'Unknown error')}</span>`; cursor.remove(); isStreaming = false; return; }
+        const fullText = await streamFromResponse(res, content, cursor); cursor.remove();
         chatHistory.push({ role: 'user', content: `Batch analyze ${repos.length} repos` });
         chatHistory.push({ role: 'assistant', content: fullText });
-        inputArea.classList.remove('hidden');
-        inputEl.focus();
-      } catch (err) {
-        content.innerHTML = `<span class="text-neon-fire">❌ Network error: ${escapeHtml(err.message)}</span>`;
-        cursor.remove();
-      } finally {
-        isStreaming = false;
-      }
+        inputArea.classList.remove('hidden'); inputEl.focus();
+      } catch (err) { content.innerHTML = `<span style="color: var(--fire);">❌ Network error: ${escapeHtml(err.message)}</span>`; cursor.remove(); }
+      finally { isStreaming = false; }
     }
 
     async function startRecommend(repos) {
       if (isStreaming || !repos.length) return;
-      isStreaming = true;
-      currentMode = 'recommend';
-      currentRepo = null;
-      chatHistory = [];
-
-      openPanel();
-      titleEl.textContent = '🎯 AI Picks';
-      inputArea.classList.add('hidden');
-
-      if (messagesEl.querySelector('.text-center')) {
-        messagesEl.innerHTML = '';
-      }
-
+      isStreaming = true; currentMode = 'recommend'; currentRepo = null; chatHistory = [];
+      openPanel(); titleEl.textContent = '🎯 AI Picks'; inputArea.classList.add('hidden');
+      if (messagesEl.querySelector('.text-center')) messagesEl.innerHTML = '';
       addUserMessage(`Recommend from ${repos.length} repositories`);
       const { content, cursor } = createAiMessage();
-
       try {
-        const res = await fetch('/api/batch-summarize', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ repos, mode: 'recommend' }),
-        });
-
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({ error: 'Request failed' }));
-          content.innerHTML = `<span class="text-neon-fire">❌ ${escapeHtml(err.error || 'Unknown error')}</span>`;
-          cursor.remove();
-          isStreaming = false;
-          return;
-        }
-
-        const fullText = await streamFromResponse(res, content, cursor);
-        cursor.remove();
+        const res = await fetch('/api/batch-summarize', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ repos, mode: 'recommend' }) });
+        if (!res.ok) { const err = await res.json().catch(() => ({ error: 'Request failed' })); content.innerHTML = `<span style="color: var(--fire);">❌ ${escapeHtml(err.error || 'Unknown error')}</span>`; cursor.remove(); isStreaming = false; return; }
+        const fullText = await streamFromResponse(res, content, cursor); cursor.remove();
         chatHistory.push({ role: 'user', content: `AI recommend from ${repos.length} repos` });
         chatHistory.push({ role: 'assistant', content: fullText });
-        inputArea.classList.remove('hidden');
-        inputEl.focus();
-      } catch (err) {
-        content.innerHTML = `<span class="text-neon-fire">❌ Network error: ${escapeHtml(err.message)}</span>`;
-        cursor.remove();
-      } finally {
-        isStreaming = false;
-      }
+        inputArea.classList.remove('hidden'); inputEl.focus();
+      } catch (err) { content.innerHTML = `<span style="color: var(--fire);">❌ Network error: ${escapeHtml(err.message)}</span>`; cursor.remove(); }
+      finally { isStreaming = false; }
     }
 
     async function startCompare(repo1, repo2) {
       if (isStreaming) return;
-      isStreaming = true;
-      currentMode = 'compare';
-      currentRepo = null;
-      chatHistory = [];
-
-      openPanel();
-      titleEl.textContent = '⚖️ Compare';
-      inputArea.classList.add('hidden');
-
-      if (messagesEl.querySelector('.text-center')) {
-        messagesEl.innerHTML = '';
-      }
-
+      isStreaming = true; currentMode = 'compare'; currentRepo = null; chatHistory = [];
+      openPanel(); titleEl.textContent = '⚖️ Compare'; inputArea.classList.add('hidden');
+      if (messagesEl.querySelector('.text-center')) messagesEl.innerHTML = '';
       addUserMessage(`Compare ${repo1.full_name} vs ${repo2.full_name}`);
       const { content, cursor } = createAiMessage();
-
       try {
-        const res = await fetch('/api/summarize', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ repo: repo1, repo2, mode: 'compare', history: [] }),
-        });
-
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({ error: 'Request failed' }));
-          content.innerHTML = `<span class="text-neon-fire">❌ ${escapeHtml(err.error || 'Unknown error')}</span>`;
-          cursor.remove();
-          isStreaming = false;
-          return;
-        }
-
-        const fullText = await streamFromResponse(res, content, cursor);
-        cursor.remove();
+        const res = await fetch('/api/summarize', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ repo: repo1, repo2, mode: 'compare', history: [] }) });
+        if (!res.ok) { const err = await res.json().catch(() => ({ error: 'Request failed' })); content.innerHTML = `<span style="color: var(--fire);">❌ ${escapeHtml(err.error || 'Unknown error')}</span>`; cursor.remove(); isStreaming = false; return; }
+        const fullText = await streamFromResponse(res, content, cursor); cursor.remove();
         chatHistory.push({ role: 'user', content: `Compare ${repo1.full_name} and ${repo2.full_name}` });
         chatHistory.push({ role: 'assistant', content: fullText });
-        inputArea.classList.remove('hidden');
-        inputEl.focus();
-      } catch (err) {
-        content.innerHTML = `<span class="text-neon-fire">❌ Network error: ${escapeHtml(err.message)}</span>`;
-        cursor.remove();
-      } finally {
-        isStreaming = false;
-      }
+        inputArea.classList.remove('hidden'); inputEl.focus();
+      } catch (err) { content.innerHTML = `<span style="color: var(--fire);">❌ Network error: ${escapeHtml(err.message)}</span>`; cursor.remove(); }
+      finally { isStreaming = false; }
     }
 
     async function sendMessage() {
       const text = inputEl.value.trim();
       if (!text || isStreaming) return;
-      isStreaming = true;
-      inputEl.value = '';
-
-      addUserMessage(text);
-      chatHistory.push({ role: 'user', content: text });
-
+      isStreaming = true; inputEl.value = '';
+      addUserMessage(text); chatHistory.push({ role: 'user', content: text });
       inputArea.classList.add('hidden');
       const { content, cursor } = createAiMessage();
-
       const apiUrl = (currentMode === 'batch' || currentMode === 'recommend') ? '/api/batch-summarize' : '/api/summarize';
-      const body = (currentMode === 'batch' || currentMode === 'recommend')
-        ? { repos: [], mode: currentMode }
-        : { repo: currentRepo, history: chatHistory };
-
+      const body = (currentMode === 'batch' || currentMode === 'recommend') ? { repos: [], mode: currentMode } : { repo: currentRepo, history: chatHistory };
       try {
-        const res = await fetch(apiUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-        });
-
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({ error: 'Request failed' }));
-          content.innerHTML = `<span class="text-neon-fire">❌ ${escapeHtml(err.error || 'Unknown error')}</span>`;
-          cursor.remove();
-          isStreaming = false;
-          inputArea.classList.remove('hidden');
-          return;
-        }
-
-        const fullText = await streamFromResponse(res, content, cursor);
-        cursor.remove();
+        const res = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        if (!res.ok) { const err = await res.json().catch(() => ({ error: 'Request failed' })); content.innerHTML = `<span style="color: var(--fire);">❌ ${escapeHtml(err.error || 'Unknown error')}</span>`; cursor.remove(); isStreaming = false; inputArea.classList.remove('hidden'); return; }
+        const fullText = await streamFromResponse(res, content, cursor); cursor.remove();
         chatHistory.push({ role: 'assistant', content: fullText });
-      } catch (err) {
-        content.innerHTML = `<span class="text-neon-fire">❌ Network error: ${escapeHtml(err.message)}</span>`;
-        cursor.remove();
-      } finally {
-        isStreaming = false;
-        inputArea.classList.remove('hidden');
-        inputEl.focus();
-      }
+      } catch (err) { content.innerHTML = `<span style="color: var(--fire);">❌ Network error: ${escapeHtml(err.message)}</span>`; cursor.remove(); }
+      finally { isStreaming = false; inputArea.classList.remove('hidden'); inputEl.focus(); }
     }
 
     sendBtn.addEventListener('click', sendMessage);
-    inputEl.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-      }
-    });
+    inputEl.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
 
     window.openAiSummary = startSummary;
     window.openAiBatchSummary = startBatchSummary;

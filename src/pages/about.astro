@@ -3,9 +3,9 @@ import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout title="About - GitHub Trending">
-  <header class="glass border-b border-neon-border">
+  <header class="glass" style="border-bottom: 1px solid var(--border);">
     <div class="max-w-4xl mx-auto px-4 py-8">
-      <a href="/" class="text-neon-accent hover:underline text-sm mb-4 inline-block">← Back to Trending</a>
+      <a href="/" class="text-sm mb-4 inline-block hover:underline" style="color: var(--accent);">← Back to Trending</a>
       <h1 class="text-3xl font-bold gradient-text">About</h1>
     </div>
   </header>
@@ -13,41 +13,41 @@ import Layout from '../layouts/Layout.astro';
   <main class="max-w-4xl mx-auto px-4 py-8 page-animate">
     <div class="glass rounded-xl p-8">
       <h2 class="text-2xl font-bold mb-4 gradient-text">🧠 GitHub Trending</h2>
-      <div class="prose max-w-none space-y-4 text-neon-text-secondary">
+      <div class="prose max-w-none space-y-4" style="color: var(--text-secondary);">
         <p>
           This site showcases the hottest GitHub repositories created in the last 30 days,
           ranked by star count. It helps developers discover new and exciting projects gaining
           traction in the open-source community.
         </p>
 
-        <h3 class="text-xl font-semibold text-neon-text mt-6">How it works</h3>
+        <h3 class="text-xl font-semibold mt-6" style="color: var(--text);">How it works</h3>
         <p>
           Data is fetched from the GitHub Search API, querying for repositories created within
           the last 30 days and sorted by star count. The results are rendered as static HTML
           for fast loading and SEO.
         </p>
 
-        <h3 class="text-xl font-semibold text-neon-text mt-6">Features</h3>
+        <h3 class="text-xl font-semibold mt-6" style="color: var(--text);">Features</h3>
         <ul class="list-disc list-inside space-y-2">
           <li>Browse trending repositories by language</li>
           <li>Sort by stars, last updated, or name</li>
           <li>AI-powered repository analysis and comparison</li>
           <li>Responsive design for all devices</li>
-          <li>Dark theme with glass morphism effects</li>
+          <li>Dark/Light theme with glass morphism effects</li>
           <li>Fast static site generation with Astro</li>
         </ul>
 
-        <h3 class="text-xl font-semibold text-neon-text mt-6">Tech Stack</h3>
+        <h3 class="text-xl font-semibold mt-6" style="color: var(--text);">Tech Stack</h3>
         <ul class="list-disc list-inside space-y-2">
-          <li><a href="https://astro.build" class="text-neon-accent hover:underline">Astro</a> - Web framework</li>
-          <li><a href="https://tailwindcss.com" class="text-neon-accent hover:underline">Tailwind CSS v4</a> - Styling</li>
-          <li><a href="https://api.github.com" class="text-neon-accent hover:underline">GitHub API</a> - Data source</li>
+          <li><a href="https://astro.build" class="hover:underline" style="color: var(--accent);">Astro</a> - Web framework</li>
+          <li><a href="https://tailwindcss.com" class="hover:underline" style="color: var(--accent);">Tailwind CSS v4</a> - Styling</li>
+          <li><a href="https://api.github.com" class="hover:underline" style="color: var(--accent);">GitHub API</a> - Data source</li>
         </ul>
 
-        <h3 class="text-xl font-semibold text-neon-text mt-6">API Rate Limits</h3>
+        <h3 class="text-xl font-semibold mt-6" style="color: var(--text);">API Rate Limits</h3>
         <p>
           Without authentication, the GitHub API allows 60 requests per hour. For higher limits
-          (5,000/hour), set the <code class="bg-neon-border/30 px-2 py-0.5 rounded text-neon-accent">GITHUB_TOKEN</code>
+          (5,000/hour), set the <code class="px-2 py-0.5 rounded" style="background: var(--code-bg); color: var(--accent);">GITHUB_TOKEN</code>
           environment variable with a personal access token.
         </p>
       </div>

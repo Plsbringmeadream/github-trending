@@ -14,9 +14,9 @@ const rankClass = rank === 1 ? 'rank-gold' : rank === 2 ? 'rank-silver' : rank =
 const rankLabel = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
 ---
 
-<article data-repo-name={repo.full_name} class="card-animate group relative glass rounded-xl p-5 transition-all duration-300 hover:-translate-y-1 hover:border-neon-border-hover hover:shadow-lg hover:shadow-neon-accent/5">
+<article data-repo-name={repo.full_name} class="card-animate group relative glass rounded-xl p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg" style="border-color: var(--glass-border);" onmouseenter="this.style.borderColor='var(--border-hover)'; this.style.boxShadow='0 0 20px rgba(99,102,241,0.1)'" onmouseleave="this.style.borderColor='var(--glass-border)'; this.style.boxShadow=''">
   <!-- Rank badge -->
-  <div class={`absolute -top-2.5 -left-2.5 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${rankClass || 'bg-neon-bg border border-neon-border text-neon-text-secondary group-hover:border-neon-accent/40'}`}>
+  <div class={`absolute -top-2.5 -left-2.5 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${rankClass || ''}`} style={rank > 3 ? 'background: var(--bg-card-solid); border: 1px solid var(--border); color: var(--text-secondary);' : ''}>
     {rank <= 3 ? (
       <span class="text-sm">{rankLabel}</span>
     ) : (
@@ -29,7 +29,8 @@ const rankLabel = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉
     <img
       src={repo.owner.avatar_url}
       alt={repo.owner.login}
-      class="w-10 h-10 rounded-full border border-neon-border"
+      class="w-10 h-10 rounded-full"
+      style="border: 1px solid var(--border);"
       loading="lazy"
       width="40"
       height="40"
@@ -37,11 +38,12 @@ const rankLabel = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉
     <div class="flex-1 min-w-0">
       <a
         href={`/repo/${repo.owner.login}/${repo.name}`}
-        class="text-neon-accent hover:text-neon-cyan font-semibold text-base leading-tight truncate block transition-colors"
+        class="hover:opacity-80 font-semibold text-base leading-tight truncate block transition-colors"
+        style="color: var(--accent);"
       >
         {repo.full_name}
       </a>
-      <p class="text-neon-text-secondary text-sm mt-1 line-clamp-2">
+      <p class="text-sm mt-1 line-clamp-2" style="color: var(--text-secondary);">
         {repo.description || 'No description provided'}
       </p>
     </div>
@@ -49,13 +51,15 @@ const rankLabel = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉
     <div class="flex flex-col gap-1 shrink-0">
       <button
         data-fav-btn={repo.full_name}
-        class="fav-btn w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/5 transition-colors cursor-pointer text-neon-text-secondary"
+        class="fav-btn w-8 h-8 flex items-center justify-center rounded-lg hover:opacity-80 transition-colors cursor-pointer"
+        style="color: var(--text-secondary);"
         title="Add to favorites"
       >
         <span class="fav-icon text-lg">☆</span>
       </button>
       <button
-        class="share-btn w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/5 transition-colors cursor-pointer text-neon-text-secondary"
+        class="share-btn w-8 h-8 flex items-center justify-center rounded-lg hover:opacity-80 transition-colors cursor-pointer"
+        style="color: var(--text-secondary);"
         data-share-url={repo.html_url}
         title="Copy link"
       >
@@ -68,16 +72,16 @@ const rankLabel = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉
 
   <!-- Stats -->
   <div class="flex items-center gap-4 mt-4 text-sm">
-    <span class="flex items-center gap-1 text-neon-orange" title="Total stars">
+    <span class="flex items-center gap-1" style="color: var(--orange);" title="Total stars">
       ⭐ {formatStars(repo.stargazers_count)}
     </span>
     {repo.language && (
       <span class="flex items-center gap-1.5">
         <span class="w-2.5 h-2.5 rounded-full inline-block" style={`background-color: ${languageColor}`}></span>
-        <span class="text-neon-text-secondary">{repo.language}</span>
+        <span style="color: var(--text-secondary);">{repo.language}</span>
       </span>
     )}
-    <span class="text-neon-text-secondary ml-auto text-xs" title="Last updated">
+    <span class="ml-auto text-xs" style="color: var(--text-secondary);" title="Last updated">
       {formatDate(repo.updated_at)}
     </span>
   </div>
@@ -86,28 +90,30 @@ const rankLabel = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉
   {repo.topics && repo.topics.length > 0 && (
     <div class="flex flex-wrap gap-1.5 mt-3">
       {repo.topics.slice(0, 5).map((topic) => (
-        <span class="px-2 py-0.5 bg-neon-accent/8 text-neon-accent text-xs rounded-full border border-neon-accent/15">
+        <span class="px-2 py-0.5 text-xs rounded-full" style="background: rgba(99,102,241,0.08); color: var(--accent); border: 1px solid rgba(99,102,241,0.15);">
           {topic}
         </span>
       ))}
       {repo.topics.length > 5 && (
-        <span class="px-2 py-0.5 text-neon-text-secondary text-xs">
+        <span class="px-2 py-0.5 text-xs" style="color: var(--text-secondary);">
           +{repo.topics.length - 5}
         </span>
       )}
     </div>
   )}
 
-  <!-- AI Summary + Compare + View Details -->
-  <div class="mt-4 pt-3 border-t border-neon-border/50 flex gap-2">
+  <!-- Actions -->
+  <div class="mt-4 pt-3 flex gap-2" style="border-top: 1px solid var(--border);">
     <a
       href={`/repo/${repo.owner.login}/${repo.name}`}
-      class="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-neon-text-secondary glass rounded-lg hover:text-neon-accent hover:border-neon-accent/30 transition-all duration-200"
+      class="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium glass rounded-lg hover:opacity-80 transition-all duration-200"
+      style="color: var(--text-secondary);"
     >
       📋 Details
     </a>
     <button
-      class="compare-btn w-9 h-9 flex items-center justify-center text-sm rounded-lg border border-neon-border text-neon-text-secondary hover:text-neon-orange hover:border-neon-orange/40 transition-all duration-200 cursor-pointer"
+      class="compare-btn w-9 h-9 flex items-center justify-center text-sm rounded-lg border cursor-pointer transition-all duration-200"
+      style="border-color: var(--border); color: var(--text-secondary);"
       data-repo={JSON.stringify({
         full_name: repo.full_name,
         description: repo.description,
@@ -121,7 +127,8 @@ const rankLabel = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉
       ⚖️
     </button>
     <button
-      class="ai-summary-btn flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-lg bg-neon-accent/10 border border-neon-accent/20 text-neon-accent hover:bg-neon-accent/20 hover:border-neon-accent/40 transition-all duration-200 cursor-pointer"
+      class="ai-summary-btn flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-lg cursor-pointer transition-all duration-200"
+      style="background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.2); color: var(--accent);"
       data-repo={JSON.stringify({
         full_name: repo.full_name,
         description: repo.description,
@@ -146,7 +153,6 @@ const rankLabel = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉
     });
   });
 
-  // Compare button logic
   document.querySelectorAll('.compare-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const repo = JSON.parse(btn.getAttribute('data-repo') || '{}');
@@ -156,16 +162,20 @@ const rankLabel = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉
       const idx = state.selected.findIndex(r => r.full_name === repo.full_name);
       if (idx >= 0) {
         state.selected.splice(idx, 1);
-        btn.classList.remove('border-neon-orange', 'text-neon-orange', 'bg-neon-orange/10');
-        btn.classList.add('border-neon-border', 'text-neon-text-secondary');
+        btn.classList.remove('active');
+        (btn as HTMLElement).style.borderColor = 'var(--border)';
+        (btn as HTMLElement).style.color = 'var(--text-secondary)';
+        (btn as HTMLElement).style.background = '';
         return;
       }
 
       if (state.selected.length >= 2) return;
 
       state.selected.push(repo);
-      btn.classList.add('border-neon-orange', 'text-neon-orange', 'bg-neon-orange/10');
-      btn.classList.remove('border-neon-border', 'text-neon-text-secondary');
+      btn.classList.add('active');
+      (btn as HTMLElement).style.borderColor = 'var(--orange)';
+      (btn as HTMLElement).style.color = 'var(--orange)';
+      (btn as HTMLElement).style.background = 'rgba(245,158,11,0.1)';
 
       if (state.selected.length === 2) {
         if (window.openAiCompare) {
@@ -178,15 +188,13 @@ const rankLabel = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉
     });
   });
 
-  // Favorites
   document.querySelectorAll('.fav-btn').forEach(btn => {
     const fullName = btn.getAttribute('data-fav-btn') || '';
     try {
       const favs = JSON.parse(localStorage.getItem('github-trending-favorites') || '[]');
       if (favs.includes(fullName)) {
         btn.querySelector('.fav-icon').textContent = '★';
-        btn.classList.add('text-neon-orange');
-        btn.classList.remove('text-neon-text-secondary');
+        (btn as HTMLElement).style.color = 'var(--orange)';
       }
     } catch {}
     btn.addEventListener('click', () => {
@@ -194,14 +202,15 @@ const rankLabel = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉
     });
   });
 
-  // Share
   document.querySelectorAll('.share-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
       const url = btn.getAttribute('data-share-url') || '';
       try {
         await navigator.clipboard.writeText(url);
         const toast = document.createElement('div');
-        toast.className = 'fixed bottom-20 left-1/2 -translate-x-1/2 z-50 glass px-4 py-2 rounded-xl text-sm shadow-lg text-neon-green border-neon-green/20';
+        toast.className = 'fixed bottom-20 left-1/2 -translate-x-1/2 z-50 glass px-4 py-2 rounded-xl text-sm shadow-lg';
+        toast.style.color = 'var(--green)';
+        toast.style.borderColor = 'rgba(22,163,74,0.2)';
         toast.textContent = '✅ Link copied!';
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 2000);

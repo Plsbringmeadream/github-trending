@@ -8,7 +8,7 @@ const { title, description = "Discover the hottest GitHub repositories from the 
 ---
 
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -23,7 +23,7 @@ const { title, description = "Discover the hottest GitHub repositories from the 
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
   </head>
-  <body class="min-h-screen bg-neon-bg text-neon-text font-sans grid-bg relative">
+  <body class="min-h-screen font-sans grid-bg relative" style="background-color: var(--bg); color: var(--text);">
     <div id="mouse-glow"></div>
     <div class="relative z-10">
       <slot />
@@ -32,6 +32,14 @@ const { title, description = "Discover the hottest GitHub repositories from the 
 </html>
 
 <script>
+  // Theme init - must run before paint
+  (function() {
+    const saved = localStorage.getItem('theme');
+    if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    }
+  })();
+
   // Mouse-following glow effect
   const glow = document.getElementById('mouse-glow');
   if (glow) {
