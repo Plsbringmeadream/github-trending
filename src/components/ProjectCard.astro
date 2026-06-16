@@ -73,7 +73,34 @@ const languageColor = getLanguageColor(repo.language);
       )}
     </div>
   )}
+  <!-- AI Summary button -->
+  <div class="mt-3 pt-3 border-t border-github-border">
+    <button
+      class="ai-summary-btn w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-github-accent bg-github-accent/5 border border-github-accent/20 rounded-lg hover:bg-github-accent/10 hover:border-github-accent/40 transition-all duration-200 cursor-pointer"
+      data-repo={JSON.stringify({
+        full_name: repo.full_name,
+        description: repo.description,
+        language: repo.language,
+        stargazers_count: repo.stargazers_count,
+        topics: repo.topics,
+        html_url: repo.html_url,
+      })}
+    >
+      🤖 AI 总结
+    </button>
+  </div>
 </article>
+
+<script>
+  document.querySelectorAll('.ai-summary-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const repo = JSON.parse(btn.getAttribute('data-repo') || '{}');
+      if (window.openAiSummary) {
+        window.openAiSummary(repo);
+      }
+    });
+  });
+</script>
 
 <style>
   .line-clamp-2 {

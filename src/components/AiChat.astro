@@ -1,0 +1,295 @@
+---
+// AiChat.astro - AI Chat sidebar component
+---
+
+<div id="ai-chat-container" class="fixed bottom-4 right-4 z-50 font-sans">
+  <!-- Toggle button -->
+  <button
+    id="ai-chat-toggle"
+    class="w-14 h-14 rounded-full bg-github-accent text-white shadow-lg hover:shadow-xl hover:bg-github-accent/90 transition-all duration-300 flex items-center justify-center text-2xl cursor-pointer"
+    aria-label="Open AI Chat"
+  >
+    🤖
+  </button>
+
+  <!-- Chat panel -->
+  <div
+    id="ai-chat-panel"
+    class="hidden absolute bottom-18 right-0 w-[380px] max-w-[calc(100vw-2rem)] h-[520px] max-h-[calc(100vh-6rem)] bg-github-card border border-github-border rounded-xl shadow-2xl flex flex-col overflow-hidden"
+  >
+    <!-- Header -->
+    <div class="flex items-center justify-between px-4 py-3 bg-github-accent text-white rounded-t-xl shrink-0">
+      <div class="flex items-center gap-2">
+        <span class="text-lg">🤖</span>
+        <span class="font-semibold text-sm">AI 仓库分析</span>
+      </div>
+      <button id="ai-chat-close" class="w-7 h-7 flex items-center justify-center rounded hover:bg-white/20 transition-colors cursor-pointer text-lg leading-none">&times;</button>
+    </div>
+
+    <!-- Messages area -->
+    <div id="ai-chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 text-sm">
+      <div class="text-github-text-secondary text-center py-8">
+        <p class="text-3xl mb-2">🔍</p>
+        <p>点击仓库卡片上的 <strong>"🤖 AI 总结"</strong> 按钮</p>
+        <p class="mt-1">AI 将为你分析该项目</p>
+      </div>
+    </div>
+
+    <!-- Input area -->
+    <div id="ai-chat-input-area" class="border-t border-github-border p-3 shrink-0 hidden">
+      <div class="flex gap-2">
+        <input
+          id="ai-chat-input"
+          type="text"
+          placeholder="追问 AI..."
+          class="flex-1 px-3 py-2 bg-github-darker border border-github-border rounded-lg text-sm text-github-text placeholder:text-github-text-secondary focus:outline-none focus:border-github-accent transition-colors"
+        />
+        <button
+          id="ai-chat-send"
+          class="px-4 py-2 bg-github-accent text-white rounded-lg text-sm font-medium hover:bg-github-accent/90 transition-colors cursor-pointer shrink-0"
+        >
+          发送
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // @ts-nocheck
+  (() => {
+    const toggle = document.getElementById('ai-chat-toggle');
+    const panel = document.getElementById('ai-chat-panel');
+    const closeBtn = document.getElementById('ai-chat-close');
+    const messagesEl = document.getElementById('ai-chat-messages');
+    const inputArea = document.getElementById('ai-chat-input-area');
+    const inputEl = document.getElementById('ai-chat-input');
+    const sendBtn = document.getElementById('ai-chat-send');
+
+    let currentRepo = null;
+    let chatHistory = []; // { role, content }
+    let isStreaming = false;
+
+    function togglePanel() {
+      panel.classList.toggle('hidden');
+      panel.classList.toggle('flex');
+    }
+
+    function openPanel() {
+      panel.classList.remove('hidden');
+      panel.classList.add('flex');
+    }
+
+    toggle.addEventListener('click', togglePanel);
+    closeBtn.addEventListener('click', togglePanel);
+
+    // Render a user message bubble
+    function addUserMessage(text) {
+      const div = document.createElement('div');
+      div.className = 'flex justify-end';
+      div.innerHTML = `<div class="max-w-[80%] bg-github-accent text-white px-3 py-2 rounded-2xl rounded-br-sm text-sm whitespace-pre-wrap">${escapeHtml(text)}</div>`;
+      messagesEl.appendChild(div);
+      scrollToBottom();
+    }
+
+    // Create a streaming AI message bubble, return the content element
+    function createAiMessage() {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'flex justify-start';
+      const bubble = document.createElement('div');
+      bubble.className = 'max-w-[90%] bg-github-darker border border-github-border px-3 py-2 rounded-2xl rounded-bl-sm text-sm text-github-text';
+      const content = document.createElement('div');
+      content.className = 'ai-content whitespace-pre-wrap';
+      const cursor = document.createElement('span');
+      cursor.className = 'inline-block w-2 h-4 bg-github-accent ml-0.5 animate-pulse align-text-bottom';
+      bubble.appendChild(content);
+      bubble.appendChild(cursor);
+      wrapper.appendChild(bubble);
+      messagesEl.appendChild(wrapper);
+      scrollToBottom();
+      return { content, cursor, wrapper };
+    }
+
+    function scrollToBottom() {
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function escapeHtml(str) {
+      const d = document.createElement('div');
+      d.textContent = str;
+      return d.innerHTML;
+    }
+
+    // Simple markdown-ish rendering (bold, code, headers)
+    function renderMarkdown(text) {
+      return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/`([^`]+)`/g, '<code class="bg-github-border/40 px-1 rounded text-xs">$1</code>')
+        .replace(/^### (.+)$/gm, '<strong class="text-github-accent">$1</strong>')
+        .replace(/^## (.+)$/gm, '<strong class="text-github-accent text-base">$1</strong>')
+        .replace(/^# (.+)$/gm, '<strong class="text-github-accent text-lg">$1</strong>')
+        .replace(/\n/g, '<br>');
+    }
+
+    async function startSummary(repo) {
+      if (isStreaming) return;
+      isStreaming = true;
+      currentRepo = repo;
+      chatHistory = [];
+
+      openPanel();
+      inputArea.classList.add('hidden');
+
+      // Clear placeholder if present
+      if (messagesEl.querySelector('.text-center')) {
+        messagesEl.innerHTML = '';
+      }
+
+      addUserMessage(`请分析 ${repo.full_name}`);
+      const { content, cursor, wrapper } = createAiMessage();
+
+      try {
+        const res = await fetch('/api/summarize', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ repo, history: [] }),
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ error: 'Request failed' }));
+          content.innerHTML = `<span class="text-github-fire">❌ ${escapeHtml(err.error || 'Unknown error')}</span>`;
+          cursor.remove();
+          isStreaming = false;
+          return;
+        }
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let fullText = '';
+        let buffer = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed || !trimmed.startsWith('data: ')) continue;
+            const data = trimmed.slice(6);
+            if (data === '[DONE]') continue;
+            try {
+              const parsed = JSON.parse(data);
+              if (parsed.error) {
+                content.innerHTML = `<span class="text-github-fire">❌ ${escapeHtml(parsed.error)}</span>`;
+                break;
+              }
+              if (parsed.content) {
+                fullText += parsed.content;
+                content.innerHTML = renderMarkdown(fullText);
+                scrollToBottom();
+              }
+            } catch { /* skip */ }
+          }
+        }
+
+        cursor.remove();
+        chatHistory.push({ role: 'user', content: `请分析 ${repo.full_name} 的仓库信息：${repo.description || '无'}` });
+        chatHistory.push({ role: 'assistant', content: fullText });
+        inputArea.classList.remove('hidden');
+        inputEl.focus();
+      } catch (err) {
+        content.innerHTML = `<span class="text-github-fire">❌ 网络错误: ${escapeHtml(err.message)}</span>`;
+        cursor.remove();
+      } finally {
+        isStreaming = false;
+      }
+    }
+
+    async function sendMessage() {
+      const text = inputEl.value.trim();
+      if (!text || isStreaming || !currentRepo) return;
+      isStreaming = true;
+      inputEl.value = '';
+
+      addUserMessage(text);
+      chatHistory.push({ role: 'user', content: text });
+
+      inputArea.classList.add('hidden');
+      const { content, cursor } = createAiMessage();
+
+      try {
+        const res = await fetch('/api/summarize', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ repo: currentRepo, history: chatHistory }),
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ error: 'Request failed' }));
+          content.innerHTML = `<span class="text-github-fire">❌ ${escapeHtml(err.error || 'Unknown error')}</span>`;
+          cursor.remove();
+          isStreaming = false;
+          inputArea.classList.remove('hidden');
+          return;
+        }
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let fullText = '';
+        let buffer = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed || !trimmed.startsWith('data: ')) continue;
+            const data = trimmed.slice(6);
+            if (data === '[DONE]') continue;
+            try {
+              const parsed = JSON.parse(data);
+              if (parsed.content) {
+                fullText += parsed.content;
+                content.innerHTML = renderMarkdown(fullText);
+                scrollToBottom();
+              }
+            } catch { /* skip */ }
+          }
+        }
+
+        cursor.remove();
+        chatHistory.push({ role: 'assistant', content: fullText });
+      } catch (err) {
+        content.innerHTML = `<span class="text-github-fire">❌ 网络错误: ${escapeHtml(err.message)}</span>`;
+        cursor.remove();
+      } finally {
+        isStreaming = false;
+        inputArea.classList.remove('hidden');
+        inputEl.focus();
+      }
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+    inputEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    // Expose global function for ProjectCard buttons
+    window.openAiSummary = startSummary;
+  })();
+</script>

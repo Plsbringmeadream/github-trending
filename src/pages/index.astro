@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import FilterBar from '../components/FilterBar.astro';
 import StatsBar from '../components/StatsBar.astro';
 import ProjectCard from '../components/ProjectCard.astro';
+import AiChat from '../components/AiChat.astro';
 import { fetchTrendingRepos } from '../lib/github';
 
 const lang = Astro.url.searchParams.get('lang') || 'All';
@@ -91,4 +92,6 @@ try {
       &middot; Built with <a href="https://astro.build" class="text-github-accent hover:underline" target="_blank" rel="noopener noreferrer">Astro</a>
     </p>
   </footer>
+
+  <AiChat />
 </Layout>
