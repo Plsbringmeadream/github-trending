@@ -4,9 +4,16 @@ import { LANGUAGES, SORT_OPTIONS } from '../lib/github';
 interface Props {
   currentLanguage: string;
   currentSort: string;
+  currentDays: number;
 }
 
-const { currentLanguage, currentSort } = Astro.props;
+const { currentLanguage, currentSort, currentDays } = Astro.props;
+
+const DAYS_OPTIONS = [
+  { value: 7, label: '7天' },
+  { value: 14, label: '14天' },
+  { value: 30, label: '30天' },
+];
 ---
 
 <div class="sticky top-0 z-50 bg-github-card/95 backdrop-blur-md border-b border-github-border">
@@ -16,7 +23,7 @@ const { currentLanguage, currentSort } = Astro.props;
       <div class="flex gap-1.5 flex-1 overflow-x-auto pb-1 scrollbar-hide">
         {LANGUAGES.map((lang) => (
           <a
-            href={`/?lang=${encodeURIComponent(lang)}&sort=${currentSort}`}
+            href={`/?lang=${encodeURIComponent(lang)}&sort=${currentSort}&days=${currentDays}`}
             class:list={[
               'px-3 py-1.5 text-sm rounded-full transition-all duration-200 whitespace-nowrap',
               currentLanguage === lang
@@ -29,23 +36,43 @@ const { currentLanguage, currentSort } = Astro.props;
         ))}
       </div>
 
-      <!-- Sort dropdown -->
-      <div class="relative">
-        <select
-          id="sort-select"
-          class="appearance-none bg-github-card border border-github-border text-github-text text-sm rounded-lg px-4 py-2 pr-8 cursor-pointer hover:border-github-accent/50 focus:border-github-accent focus:outline-none transition-colors"
-          onchange={`window.location.href='/?lang=${encodeURIComponent(currentLanguage)}&sort='+this.value`}
-        >
-          {SORT_OPTIONS.map((opt) => (
-            <option value={opt.value} selected={currentSort === opt.value}>
+      <!-- Controls group -->
+      <div class="flex items-center gap-2">
+        <!-- Time range selector -->
+        <div class="flex items-center border border-github-border rounded-lg overflow-hidden">
+          {DAYS_OPTIONS.map((opt) => (
+            <a
+              href={`/?lang=${encodeURIComponent(currentLanguage)}&sort=${currentSort}&days=${opt.value}`}
+              class:list={[
+                'px-3 py-1.5 text-sm transition-all duration-200 whitespace-nowrap',
+                currentDays === opt.value
+                  ? 'bg-github-green text-white font-semibold'
+                  : 'bg-github-card text-github-text-secondary hover:text-github-text hover:bg-github-darker',
+              ]}
+            >
               {opt.label}
-            </option>
+            </a>
           ))}
-        </select>
-        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-github-text-secondary">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-          </svg>
+        </div>
+
+        <!-- Sort dropdown -->
+        <div class="relative">
+          <select
+            id="sort-select"
+            class="appearance-none bg-github-card border border-github-border text-github-text text-sm rounded-lg px-4 py-2 pr-8 cursor-pointer hover:border-github-accent/50 focus:border-github-accent focus:outline-none transition-colors"
+            onchange={`window.location.href='/?lang=${encodeURIComponent(currentLanguage)}&days=${currentDays}&sort='+this.value`}
+          >
+            {SORT_OPTIONS.map((opt) => (
+              <option value={opt.value} selected={currentSort === opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-github-text-secondary">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </div>
         </div>
       </div>
     </div>

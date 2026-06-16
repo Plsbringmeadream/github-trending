@@ -1,0 +1,115 @@
+---
+import { getLanguageColor } from '../lib/github';
+
+interface Props {
+  repos: Array<{ language: string | null; stargazers_count: number }>;
+  currentLanguage: string;
+  currentSort: string;
+  currentDays: number;
+}
+
+const { repos, currentLanguage, currentSort, currentDays } = Astro.props;
+
+// Count languages
+const langCounts: Record<string, number> = {};
+repos.forEach(r => {
+  const lang = r.language || 'Other';
+  langCounts[lang] = (langCounts[lang] || 0) + 1;
+});
+
+// Sort by count descending, exclude 'Other' if less than 2
+const sorted = Object.entries(langCounts)
+  .filter(([_, count]) => count >= 1)
+  .sort((a, b) => b[1] - a[1]);
+
+const total = sorted.reduce((sum, [_, c]) => sum + c, 0);
+const maxCount = sorted.length > 0 ? sorted[0][1] : 1;
+
+// Bar chart dimensions
+const barHeight = 22;
+const gap = 6;
+const chartHeight = sorted.length * (barHeight + gap);
+const labelWidth = 90;
+const countWidth = 36;
+const barAreaWidth = 200;
+const svgWidth = labelWidth + barAreaWidth + countWidth + 16;
+---
+
+{sorted.length > 0 && (
+  <div class="max-w-7xl mx-auto px-4 pb-4">
+    <div class="bg-github-card border border-github-border rounded-lg p-5">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-sm font-semibold text-github-text flex items-center gap-2">
+          <svg class="w-4 h-4 text-github-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path>
+          </svg>
+          语言分布
+        </h3>
+        <span class="text-xs text-github-text-secondary">{total} repos</span>
+      </div>
+
+      <svg width={svgWidth} height={chartHeight} class="w-full" viewBox={`0 0 ${svgWidth} ${chartHeight}`} preserveAspectRatio="xMinYMin meet">
+        {sorted.map(([lang, count], i) => {
+          const y = i * (barHeight + gap);
+          const barWidth = (count / maxCount) * barAreaWidth;
+          const color = lang === 'Other' ? '#8b949e' : getLanguageColor(lang);
+          const isFiltered = currentLanguage === lang;
+          const href = isFiltered
+            ? `/?sort=${currentSort}&days=${currentDays}`
+            : `/?lang=${encodeURIComponent(lang)}&sort=${currentSort}&days=${currentDays}`;
+          return (
+            <g>
+              <a href={href}>
+                {/* Label */}
+                <text
+                  x={labelWidth - 8}
+                  y={y + barHeight / 2 + 1}
+                  text-anchor="end"
+                  dominant-baseline="central"
+                  class:list={[
+                    'text-xs cursor-pointer',
+                    isFiltered ? 'fill-github-accent font-semibold' : 'fill-github-text-secondary',
+                  ]}
+                  style="font-size: 12px;"
+                >
+                  {lang}
+                </text>
+                {/* Bar background */}
+                <rect
+                  x={labelWidth}
+                  y={y + 2}
+                  width={barAreaWidth}
+                  height={barHeight - 4}
+                  rx={3}
+                  fill="#f6f8fa"
+                />
+                {/* Bar */}
+                <rect
+                  x={labelWidth}
+                  y={y + 2}
+                  width={barWidth}
+                  height={barHeight - 4}
+                  rx={3}
+                  fill={color}
+                  opacity={isFiltered ? 1 : 0.75}
+                  class="cursor-pointer hover:opacity-100 transition-opacity"
+                />
+                {/* Count */}
+                <text
+                  x={labelWidth + barAreaWidth + 8}
+                  y={y + barHeight / 2 + 1}
+                  dominant-baseline="central"
+                  class="fill-github-text-secondary"
+                  style="font-size: 12px;"
+                >
+                  {count}
+                </text>
+              </a>
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  </div>
+)}

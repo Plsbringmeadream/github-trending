@@ -3,9 +3,10 @@ interface Props {
   totalCount: number;
   totalStars: number;
   currentLanguage: string;
+  currentDays: number;
 }
 
-const { totalCount, totalStars, currentLanguage } = Astro.props;
+const { totalCount, totalStars, currentLanguage, currentDays = 30 } = Astro.props;
 
 function formatBigNumber(n: number): string {
   if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
@@ -45,7 +46,7 @@ function formatBigNumber(n: number): string {
         </svg>
       </div>
       <div>
-        <p class="text-2xl font-bold text-github-text">30d</p>
+        <p class="text-2xl font-bold text-github-text">{currentDays}d</p>
         <p class="text-xs text-github-text-secondary">Time Window</p>
       </div>
     </div>

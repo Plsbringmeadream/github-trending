@@ -4,12 +4,13 @@ interface Props {
   totalPages: number;
   language: string;
   sort: string;
+  days: number;
 }
 
-const { currentPage, totalPages, language, sort } = Astro.props;
+const { currentPage, totalPages, language, sort, days = 30 } = Astro.props;
 
 function getPageUrl(page: number): string {
-  return `/?lang=${encodeURIComponent(language)}&sort=${sort}&page=${page}`;
+  return `/?lang=${encodeURIComponent(language)}&sort=${sort}&days=${days}&page=${page}`;
 }
 
 const maxVisible = 5;

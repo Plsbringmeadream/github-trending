@@ -3,11 +3,16 @@ import Layout from '../layouts/Layout.astro';
 import FilterBar from '../components/FilterBar.astro';
 import StatsBar from '../components/StatsBar.astro';
 import ProjectCard from '../components/ProjectCard.astro';
+import Pagination from '../components/Pagination.astro';
 import AiChat from '../components/AiChat.astro';
+import LanguageChart from '../components/LanguageChart.astro';
 import { fetchTrendingRepos } from '../lib/github';
 
 const lang = Astro.url.searchParams.get('lang') || 'All';
 const sort = Astro.url.searchParams.get('sort') || 'stars';
+const page = Math.max(1, parseInt(Astro.url.searchParams.get('page') || '1', 10) || 1);
+const days = Math.min(30, Math.max(1, parseInt(Astro.url.searchParams.get('days') || '30', 10) || 30));
+const perPage = 30;
 
 let repos: any[] = [];
 let totalCount = 0;
@@ -16,13 +21,15 @@ let errorMsg = '';
 
 try {
   const token = import.meta.env.GITHUB_TOKEN || process.env.GITHUB_TOKEN;
-  const data = await fetchTrendingRepos(lang === 'All' ? undefined : lang, 30, 1, 30, sort, token);
+  const data = await fetchTrendingRepos(lang === 'All' ? undefined : lang, days, page, perPage, sort, token);
   repos = data.repos;
   totalCount = data.totalCount;
   totalStars = repos.reduce((sum: number, r: any) => sum + r.stargazers_count, 0);
 } catch (err: any) {
   errorMsg = err.message || 'Failed to fetch trending repositories';
 }
+
+const totalPages = Math.ceil(totalCount / perPage);
 ---
 
 <Layout title="GitHub Trending - Discover Hot Repositories">
@@ -34,17 +41,31 @@ try {
         </svg>
         <div>
           <h1 class="text-xl font-bold text-github-text">GitHub Trending</h1>
-          <p class="text-xs text-github-text-secondary">Discover the hottest repos from the last 30 days</p>
+          <p class="text-xs text-github-text-secondary">Discover the hottest repos from the last {days} days</p>
         </div>
       </div>
-      <div class="ml-auto flex items-center gap-2 text-sm text-github-text-secondary">
-        <span class="w-2 h-2 rounded-full bg-github-green animate-pulse"></span>
-        Live Data
+      <div class="ml-auto flex items-center gap-3">
+        <!-- AI buttons -->
+        <button id="batch-summary-btn" class="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-full border border-github-border text-github-text-secondary hover:text-github-accent hover:border-github-accent/50 transition-colors cursor-pointer" title="批量总结当前页面仓库">
+          🤖 批量总结
+        </button>
+        <button id="ai-recommend-btn" class="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-full border border-github-border text-github-text-secondary hover:text-github-accent hover:border-github-accent/50 transition-colors cursor-pointer" title="AI 推荐不同场景的仓库">
+          🎯 AI 推荐
+        </button>
+        <!-- Favorites counter -->
+        <button id="favorites-toggle" class="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-full border border-github-border text-github-text-secondary hover:text-github-orange hover:border-github-orange/50 transition-colors cursor-pointer" title="Show favorites">
+          <span>⭐</span>
+          <span id="favorites-count">0</span>
+        </button>
+        <div class="flex items-center gap-2 text-sm text-github-text-secondary">
+          <span class="w-2 h-2 rounded-full bg-github-green animate-pulse"></span>
+          Live Data
+        </div>
       </div>
     </div>
   </header>
 
-  <FilterBar currentLanguage={lang} currentSort={sort} />
+  <FilterBar currentLanguage={lang} currentSort={sort} currentDays={days} />
 
   {errorMsg ? (
     <div class="max-w-7xl mx-auto px-4 py-20 text-center">
@@ -67,12 +88,42 @@ try {
     </div>
   ) : (
     <>
-      <StatsBar totalCount={totalCount} totalStars={totalStars} currentLanguage={lang} />
+      <StatsBar totalCount={totalCount} totalStars={totalStars} currentLanguage={lang} currentDays={days} />
+
+      <LanguageChart repos={repos} currentLanguage={lang} currentSort={sort} currentDays={days} />
 
       <main class="max-w-7xl mx-auto px-4 pb-12">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- Search box + compare hint -->
+        <div class="mb-5 flex flex-col sm:flex-row sm:items-start gap-3">
+          <div class="flex-1">
+            <div class="relative max-w-md">
+              <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-github-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+              <input
+                id="search-input"
+                type="text"
+                placeholder="Search repositories by name or description..."
+                class="w-full pl-10 pr-10 py-2.5 bg-github-card border border-github-border rounded-lg text-sm text-github-text placeholder:text-github-text-secondary focus:outline-none focus:border-github-accent transition-colors"
+              />
+              <button id="search-clear" class="absolute right-3 top-1/2 -translate-y-1/2 text-github-text-secondary hover:text-github-text hidden cursor-pointer" title="Clear search">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+            <p id="search-count" class="text-xs text-github-text-secondary mt-2 hidden"></p>
+          </div>
+          <div id="compare-hint" class="hidden sm:flex items-center gap-2 px-3 py-2 bg-github-orange/10 border border-github-orange/20 rounded-lg text-xs text-github-orange">
+            <span>⚖️</span>
+            <span>点击两个仓库的 <strong>⚖️</strong> 按钮进行 AI 对比</span>
+            <button id="compare-clear-btn" class="ml-1 text-github-text-secondary hover:text-github-text cursor-pointer" title="清除选择">&times;</button>
+          </div>
+        </div>
+
+        <div id="repo-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {repos.map((repo: any, i: number) => (
-            <ProjectCard repo={repo} rank={i + 1} />
+            <ProjectCard repo={repo} rank={(page - 1) * perPage + i + 1} />
           ))}
         </div>
 
@@ -82,6 +133,8 @@ try {
             <a href="/" class="inline-block mt-4 text-github-accent hover:underline">View all trending repos</a>
           </div>
         )}
+
+        <Pagination currentPage={page} totalPages={totalPages} language={lang} sort={sort} days={days} />
       </main>
     </>
   )}
@@ -94,4 +147,171 @@ try {
   </footer>
 
   <AiChat />
+
+  <!-- Client-side logic -->
+  <script define:vars={{ reposData: repos }}>
+    (() => {
+      const searchInput = document.getElementById('search-input');
+      const searchClear = document.getElementById('search-clear');
+      const searchCount = document.getElementById('search-count');
+      const repoGrid = document.getElementById('repo-grid');
+      const favoritesToggle = document.getElementById('favorites-toggle');
+      const favoritesCountEl = document.getElementById('favorites-count');
+      const batchSummaryBtn = document.getElementById('batch-summary-btn');
+      const aiRecommendBtn = document.getElementById('ai-recommend-btn');
+      const compareHint = document.getElementById('compare-hint');
+      const compareClearBtn = document.getElementById('compare-clear-btn');
+
+      if (!searchInput || !repoGrid) return;
+
+      // --- Compare state ---
+      const compareState = { selected: [] };
+
+      function updateCompareHint() {
+        if (compareHint) {
+          if (compareState.selected.length > 0) {
+            compareHint.classList.remove('hidden');
+            compareHint.classList.add('sm:flex');
+          } else {
+            compareHint.classList.add('hidden');
+            compareHint.classList.remove('sm:flex');
+          }
+        }
+      }
+
+      function clearCompareState() {
+        compareState.selected = [];
+        // Reset all compare button styles
+        document.querySelectorAll('.compare-btn').forEach(btn => {
+          btn.classList.remove('border-github-orange', 'text-github-orange', 'bg-github-orange/10');
+          btn.classList.add('border-github-border', 'text-github-text-secondary');
+        });
+        updateCompareHint();
+      }
+
+      if (compareClearBtn) {
+        compareClearBtn.addEventListener('click', clearCompareState);
+      }
+
+      // Expose compare state
+      window.__getCompareState = () => ({
+        selected: compareState.selected,
+        clear: clearCompareState,
+      });
+
+      // --- AI buttons ---
+      // Helper to collect visible repos data from the DOM
+      function collectVisibleRepos() {
+        const cards = repoGrid.querySelectorAll('article');
+        const visible = [];
+        cards.forEach(card => {
+          if ((card as HTMLElement).style.display === 'none') return;
+          const aiBtn = card.querySelector('.ai-summary-btn');
+          if (aiBtn) {
+            try {
+              visible.push(JSON.parse(aiBtn.getAttribute('data-repo') || '{}'));
+            } catch {}
+          }
+        });
+        return visible;
+      }
+
+      if (batchSummaryBtn) {
+        batchSummaryBtn.addEventListener('click', () => {
+          const repos = collectVisibleRepos();
+          if (repos.length && window.openAiBatchSummary) {
+            window.openAiBatchSummary(repos);
+          }
+        });
+      }
+
+      if (aiRecommendBtn) {
+        aiRecommendBtn.addEventListener('click', () => {
+          const repos = collectVisibleRepos();
+          if (repos.length && window.openAiRecommend) {
+            window.openAiRecommend(repos);
+          }
+        });
+      }
+
+      // --- Favorites ---
+      const FAV_KEY = 'github-trending-favorites';
+
+      function getFavorites() {
+        try { return JSON.parse(localStorage.getItem(FAV_KEY) || '[]'); } catch { return []; }
+      }
+
+      function saveFavorites(favs) {
+        localStorage.setItem(FAV_KEY, JSON.stringify(favs));
+      }
+
+      function updateFavoritesCount() {
+        const favs = getFavorites();
+        favoritesCountEl.textContent = String(favs.length);
+      }
+
+      updateFavoritesCount();
+
+      window.__toggleFavorite = function(fullName) {
+        const favs = getFavorites();
+        const idx = favs.indexOf(fullName);
+        if (idx >= 0) favs.splice(idx, 1);
+        else favs.push(fullName);
+        saveFavorites(favs);
+        updateFavoritesCount();
+        document.querySelectorAll(`[data-fav-btn="${fullName}"]`).forEach(btn => {
+          const icon = btn.querySelector('.fav-icon');
+          if (icon) icon.textContent = favs.includes(fullName) ? '★' : '☆';
+          btn.classList.toggle('text-github-orange', favs.includes(fullName));
+          btn.classList.toggle('text-github-text-secondary', !favs.includes(fullName));
+        });
+      };
+
+      // --- Search ---
+      function doSearch() {
+        const q = searchInput.value.trim().toLowerCase();
+        const cards = repoGrid.querySelectorAll('article');
+        let visible = 0;
+        cards.forEach(card => {
+          const name = (card.querySelector('a')?.textContent || '').toLowerCase();
+          const desc = (card.querySelector('p')?.textContent || '').toLowerCase();
+          const match = !q || name.includes(q) || desc.includes(q);
+          card.style.display = match ? '' : 'none';
+          if (match) visible++;
+        });
+        if (q) {
+          searchCount.textContent = `${visible} of ${cards.length} repositories match "${searchInput.value.trim()}"`;
+          searchCount.classList.remove('hidden');
+        } else {
+          searchCount.classList.add('hidden');
+        }
+        searchClear.classList.toggle('hidden', !q);
+      }
+
+      searchInput.addEventListener('input', doSearch);
+      searchClear.addEventListener('click', () => {
+        searchInput.value = '';
+        doSearch();
+        searchInput.focus();
+      });
+
+      // --- Favorites filter ---
+      let showingFavoritesOnly = false;
+      favoritesToggle.addEventListener('click', () => {
+        showingFavoritesOnly = !showingFavoritesOnly;
+        const favs = getFavorites();
+        const cards = repoGrid.querySelectorAll('article');
+        cards.forEach(card => {
+          const fullName = card.getAttribute('data-repo-name') || '';
+          if (showingFavoritesOnly) {
+            card.style.display = favs.includes(fullName) ? '' : 'none';
+          } else {
+            card.style.display = '';
+          }
+        });
+        favoritesToggle.classList.toggle('border-github-orange', showingFavoritesOnly);
+        favoritesToggle.classList.toggle('text-github-orange', showingFavoritesOnly);
+      });
+    })();
+  </script>
 </Layout>

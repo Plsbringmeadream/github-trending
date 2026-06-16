@@ -15,13 +15,13 @@
   <!-- Chat panel -->
   <div
     id="ai-chat-panel"
-    class="hidden absolute bottom-18 right-0 w-[380px] max-w-[calc(100vw-2rem)] h-[520px] max-h-[calc(100vh-6rem)] bg-github-card border border-github-border rounded-xl shadow-2xl flex flex-col overflow-hidden"
+    class="hidden absolute bottom-18 right-0 w-[420px] max-w-[calc(100vw-2rem)] h-[560px] max-h-[calc(100vh-6rem)] bg-github-card border border-github-border rounded-xl shadow-2xl flex flex-col overflow-hidden"
   >
     <!-- Header -->
     <div class="flex items-center justify-between px-4 py-3 bg-github-accent text-white rounded-t-xl shrink-0">
       <div class="flex items-center gap-2">
         <span class="text-lg">🤖</span>
-        <span class="font-semibold text-sm">AI 仓库分析</span>
+        <span id="ai-chat-title" class="font-semibold text-sm">AI 仓库分析</span>
       </div>
       <button id="ai-chat-close" class="w-7 h-7 flex items-center justify-center rounded hover:bg-white/20 transition-colors cursor-pointer text-lg leading-none">&times;</button>
     </div>
@@ -31,7 +31,7 @@
       <div class="text-github-text-secondary text-center py-8">
         <p class="text-3xl mb-2">🔍</p>
         <p>点击仓库卡片上的 <strong>"🤖 AI 总结"</strong> 按钮</p>
-        <p class="mt-1">AI 将为你分析该项目</p>
+        <p class="mt-1">或使用页面顶部的 <strong>AI 功能按钮</strong></p>
       </div>
     </div>
 
@@ -65,10 +65,12 @@
     const inputArea = document.getElementById('ai-chat-input-area');
     const inputEl = document.getElementById('ai-chat-input');
     const sendBtn = document.getElementById('ai-chat-send');
+    const titleEl = document.getElementById('ai-chat-title');
 
     let currentRepo = null;
     let chatHistory = []; // { role, content }
     let isStreaming = false;
+    let currentMode = 'summary'; // 'summary' | 'compare' | 'batch' | 'recommend'
 
     function togglePanel() {
       panel.classList.toggle('hidden');
@@ -134,13 +136,52 @@
         .replace(/\n/g, '<br>');
     }
 
+    // Generic SSE stream reader
+    async function streamFromResponse(res, contentEl, cursorEl) {
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let fullText = '';
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed || !trimmed.startsWith('data: ')) continue;
+          const data = trimmed.slice(6);
+          if (data === '[DONE]') continue;
+          try {
+            const parsed = JSON.parse(data);
+            if (parsed.error) {
+              contentEl.innerHTML = `<span class="text-github-fire">❌ ${escapeHtml(parsed.error)}</span>`;
+              return fullText;
+            }
+            if (parsed.content) {
+              fullText += parsed.content;
+              contentEl.innerHTML = renderMarkdown(fullText);
+              scrollToBottom();
+            }
+          } catch { /* skip */ }
+        }
+      }
+      return fullText;
+    }
+
     async function startSummary(repo) {
       if (isStreaming) return;
       isStreaming = true;
+      currentMode = 'summary';
       currentRepo = repo;
       chatHistory = [];
 
       openPanel();
+      titleEl.textContent = 'AI 仓库分析';
       inputArea.classList.add('hidden');
 
       // Clear placeholder if present
@@ -149,7 +190,7 @@
       }
 
       addUserMessage(`请分析 ${repo.full_name}`);
-      const { content, cursor, wrapper } = createAiMessage();
+      const { content, cursor } = createAiMessage();
 
       try {
         const res = await fetch('/api/summarize', {
@@ -166,39 +207,7 @@
           return;
         }
 
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-        let fullText = '';
-        let buffer = '';
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split('\n');
-          buffer = lines.pop() || '';
-
-          for (const line of lines) {
-            const trimmed = line.trim();
-            if (!trimmed || !trimmed.startsWith('data: ')) continue;
-            const data = trimmed.slice(6);
-            if (data === '[DONE]') continue;
-            try {
-              const parsed = JSON.parse(data);
-              if (parsed.error) {
-                content.innerHTML = `<span class="text-github-fire">❌ ${escapeHtml(parsed.error)}</span>`;
-                break;
-              }
-              if (parsed.content) {
-                fullText += parsed.content;
-                content.innerHTML = renderMarkdown(fullText);
-                scrollToBottom();
-              }
-            } catch { /* skip */ }
-          }
-        }
-
+        const fullText = await streamFromResponse(res, content, cursor);
         cursor.remove();
         chatHistory.push({ role: 'user', content: `请分析 ${repo.full_name} 的仓库信息：${repo.description || '无'}` });
         chatHistory.push({ role: 'assistant', content: fullText });
@@ -212,9 +221,153 @@
       }
     }
 
+    // Batch summarize
+    async function startBatchSummary(repos) {
+      if (isStreaming || !repos.length) return;
+      isStreaming = true;
+      currentMode = 'batch';
+      currentRepo = null;
+      chatHistory = [];
+
+      openPanel();
+      titleEl.textContent = '🤖 批量总结报告';
+      inputArea.classList.add('hidden');
+
+      if (messagesEl.querySelector('.text-center')) {
+        messagesEl.innerHTML = '';
+      }
+
+      addUserMessage(`分析当前页面 ${repos.length} 个仓库`);
+      const { content, cursor } = createAiMessage();
+
+      try {
+        const res = await fetch('/api/batch-summarize', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ repos, mode: 'batch' }),
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ error: 'Request failed' }));
+          content.innerHTML = `<span class="text-github-fire">❌ ${escapeHtml(err.error || 'Unknown error')}</span>`;
+          cursor.remove();
+          isStreaming = false;
+          return;
+        }
+
+        const fullText = await streamFromResponse(res, content, cursor);
+        cursor.remove();
+        chatHistory.push({ role: 'user', content: `批量分析 ${repos.length} 个仓库` });
+        chatHistory.push({ role: 'assistant', content: fullText });
+        inputArea.classList.remove('hidden');
+        inputEl.focus();
+      } catch (err) {
+        content.innerHTML = `<span class="text-github-fire">❌ 网络错误: ${escapeHtml(err.message)}</span>`;
+        cursor.remove();
+      } finally {
+        isStreaming = false;
+      }
+    }
+
+    // AI Recommend
+    async function startRecommend(repos) {
+      if (isStreaming || !repos.length) return;
+      isStreaming = true;
+      currentMode = 'recommend';
+      currentRepo = null;
+      chatHistory = [];
+
+      openPanel();
+      titleEl.textContent = '🤖 AI 推荐';
+      inputArea.classList.add('hidden');
+
+      if (messagesEl.querySelector('.text-center')) {
+        messagesEl.innerHTML = '';
+      }
+
+      addUserMessage(`请根据 ${repos.length} 个仓库推荐最适合不同场景的项目`);
+      const { content, cursor } = createAiMessage();
+
+      try {
+        const res = await fetch('/api/batch-summarize', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ repos, mode: 'recommend' }),
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ error: 'Request failed' }));
+          content.innerHTML = `<span class="text-github-fire">❌ ${escapeHtml(err.error || 'Unknown error')}</span>`;
+          cursor.remove();
+          isStreaming = false;
+          return;
+        }
+
+        const fullText = await streamFromResponse(res, content, cursor);
+        cursor.remove();
+        chatHistory.push({ role: 'user', content: `AI 推荐分析 ${repos.length} 个仓库` });
+        chatHistory.push({ role: 'assistant', content: fullText });
+        inputArea.classList.remove('hidden');
+        inputEl.focus();
+      } catch (err) {
+        content.innerHTML = `<span class="text-github-fire">❌ 网络错误: ${escapeHtml(err.message)}</span>`;
+        cursor.remove();
+      } finally {
+        isStreaming = false;
+      }
+    }
+
+    // Compare two repos
+    async function startCompare(repo1, repo2) {
+      if (isStreaming) return;
+      isStreaming = true;
+      currentMode = 'compare';
+      currentRepo = null;
+      chatHistory = [];
+
+      openPanel();
+      titleEl.textContent = '⚖️ 仓库对比';
+      inputArea.classList.add('hidden');
+
+      if (messagesEl.querySelector('.text-center')) {
+        messagesEl.innerHTML = '';
+      }
+
+      addUserMessage(`对比 ${repo1.full_name} vs ${repo2.full_name}`);
+      const { content, cursor } = createAiMessage();
+
+      try {
+        const res = await fetch('/api/summarize', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ repo: repo1, repo2, mode: 'compare', history: [] }),
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ error: 'Request failed' }));
+          content.innerHTML = `<span class="text-github-fire">❌ ${escapeHtml(err.error || 'Unknown error')}</span>`;
+          cursor.remove();
+          isStreaming = false;
+          return;
+        }
+
+        const fullText = await streamFromResponse(res, content, cursor);
+        cursor.remove();
+        chatHistory.push({ role: 'user', content: `对比 ${repo1.full_name} 和 ${repo2.full_name}` });
+        chatHistory.push({ role: 'assistant', content: fullText });
+        inputArea.classList.remove('hidden');
+        inputEl.focus();
+      } catch (err) {
+        content.innerHTML = `<span class="text-github-fire">❌ 网络错误: ${escapeHtml(err.message)}</span>`;
+        cursor.remove();
+      } finally {
+        isStreaming = false;
+      }
+    }
+
     async function sendMessage() {
       const text = inputEl.value.trim();
-      if (!text || isStreaming || !currentRepo) return;
+      if (!text || isStreaming) return;
       isStreaming = true;
       inputEl.value = '';
 
@@ -224,11 +377,17 @@
       inputArea.classList.add('hidden');
       const { content, cursor } = createAiMessage();
 
+      // Determine which API to use based on current mode
+      const apiUrl = (currentMode === 'batch' || currentMode === 'recommend') ? '/api/batch-summarize' : '/api/summarize';
+      const body = (currentMode === 'batch' || currentMode === 'recommend')
+        ? { repos: [], mode: currentMode }
+        : { repo: currentRepo, history: chatHistory };
+
       try {
-        const res = await fetch('/api/summarize', {
+        const res = await fetch(apiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ repo: currentRepo, history: chatHistory }),
+          body: JSON.stringify(body),
         });
 
         if (!res.ok) {
@@ -240,35 +399,7 @@
           return;
         }
 
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-        let fullText = '';
-        let buffer = '';
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split('\n');
-          buffer = lines.pop() || '';
-
-          for (const line of lines) {
-            const trimmed = line.trim();
-            if (!trimmed || !trimmed.startsWith('data: ')) continue;
-            const data = trimmed.slice(6);
-            if (data === '[DONE]') continue;
-            try {
-              const parsed = JSON.parse(data);
-              if (parsed.content) {
-                fullText += parsed.content;
-                content.innerHTML = renderMarkdown(fullText);
-                scrollToBottom();
-              }
-            } catch { /* skip */ }
-          }
-        }
-
+        const fullText = await streamFromResponse(res, content, cursor);
         cursor.remove();
         chatHistory.push({ role: 'assistant', content: fullText });
       } catch (err) {
@@ -289,7 +420,10 @@
       }
     });
 
-    // Expose global function for ProjectCard buttons
+    // Expose global functions
     window.openAiSummary = startSummary;
+    window.openAiBatchSummary = startBatchSummary;
+    window.openAiRecommend = startRecommend;
+    window.openAiCompare = startCompare;
   })();
 </script>
