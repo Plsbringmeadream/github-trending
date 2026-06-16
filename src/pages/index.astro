@@ -8,6 +8,7 @@ import ProjectCard from '../components/ProjectCard.astro';
 import Pagination from '../components/Pagination.astro';
 import AiChat from '../components/AiChat.astro';
 import LanguageChart from '../components/LanguageChart.astro';
+import TopicCloud from '../components/TopicCloud.astro';
 import { fetchTrendingRepos, classifyRepo, CATEGORIES } from '../lib/github';
 
 const lang = Astro.url.searchParams.get('lang') || 'All';
@@ -146,7 +147,12 @@ const topLang = Object.entries(langCounts).sort((a, b) => b[1] - a[1])[0]?.[0] |
     <>
       <StatsBar totalCount={filteredRepos.length} totalStars={filteredRepos.reduce((s: number, r: any) => s + r.stargazers_count, 0)} currentLanguage={lang} currentDays={days} topLang={topLang} />
 
-      <LanguageChart repos={repos} currentLanguage={lang} currentSort={sort} currentDays={days} />
+      <div class="max-w-7xl mx-auto px-4 pb-4">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <LanguageChart repos={repos} currentLanguage={lang} currentSort={sort} currentDays={days} />
+          <TopicCloud repos={repos} currentLanguage={lang} currentSort={sort} currentDays={days} />
+        </div>
+      </div>
 
       <main class="max-w-7xl mx-auto px-4 pb-12">
         <!-- Search box + compare hint -->

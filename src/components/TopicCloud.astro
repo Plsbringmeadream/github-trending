@@ -1,0 +1,83 @@
+---
+interface Props {
+  repos: Array<{ topics: string[] }>;
+  currentLanguage: string;
+  currentSort: string;
+  currentDays: number;
+}
+
+const { repos, currentLanguage, currentSort, currentDays } = Astro.props;
+
+// Count topics
+const topicCounts: Record<string, number> = {};
+repos.forEach(r => {
+  (r.topics || []).forEach(t => {
+    topicCounts[t] = (topicCounts[t] || 0) + 1;
+  });
+});
+
+const sorted = Object.entries(topicCounts)
+  .sort((a, b) => b[1] - a[1])
+  .slice(0, 25);
+
+if (sorted.length === 0) return;
+
+const maxCount = sorted[0][1];
+const minCount = sorted[sorted.length - 1][1];
+
+function getFontSize(count: number): number {
+  if (maxCount === minCount) return 14;
+  const ratio = (count - minCount) / (maxCount - minCount);
+  return 11 + ratio * 10; // 11px to 21px
+}
+
+function getOpacity(count: number): number {
+  if (maxCount === minCount) return 1;
+  const ratio = (count - minCount) / (maxCount - minCount);
+  return 0.5 + ratio * 0.5;
+}
+
+const colors = [
+  'var(--accent)', 'var(--cyan)', 'var(--purple)', 'var(--green)', 'var(--orange)',
+  '#f472b6', '#a78bfa', '#38bdf8', '#34d399', '#fb923c',
+];
+---
+
+<div class="glass rounded-xl p-5 h-full">
+  <div class="flex items-center justify-between mb-4">
+    <h3 class="text-sm font-semibold flex items-center gap-2" style="color: var(--text);">
+      <svg class="w-4 h-4" style="color: var(--cyan);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+      </svg>
+      Hot Topics
+    </h3>
+    <span class="text-xs" style="color: var(--text-secondary);">{sorted.length} topics</span>
+  </div>
+
+  <div class="flex flex-wrap gap-2 items-center justify-center py-2">
+    {sorted.map(([topic, count], i) => {
+      const fontSize = getFontSize(count);
+      const opacity = getOpacity(count);
+      const color = colors[i % colors.length];
+      return (
+        <a
+          href={`https://github.com/topics/${topic}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="pill-tab inline-block px-2.5 py-1 rounded-full transition-all duration-200 cursor-pointer"
+          style={`
+            font-size: ${fontSize}px;
+            color: ${color};
+            opacity: ${opacity};
+            background: rgba(99,102,241,0.06);
+            border: 1px solid rgba(99,102,241,0.1);
+            line-height: 1.3;
+          `}
+          title={`${count} repos`}
+        >
+          {topic}
+        </a>
+      );
+    })}
+  </div>
+</div>
