@@ -14,7 +14,7 @@ const rankClass = rank === 1 ? 'rank-gold' : rank === 2 ? 'rank-silver' : rank =
 const rankLabel = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
 ---
 
-<article data-repo-name={repo.full_name} class="card-animate group relative glass rounded-xl p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg" style="border-color: var(--glass-border);" onmouseenter="this.style.borderColor='var(--border-hover)'; this.style.boxShadow='0 0 20px rgba(99,102,241,0.1)'" onmouseleave="this.style.borderColor='var(--glass-border)'; this.style.boxShadow=''">
+<article data-repo-name={repo.full_name} class="card-3d card-animate group relative glass rounded-xl p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg" style="border-color: var(--glass-border); transform-style: preserve-3d; perspective: 1000px;" onmouseenter="this.style.borderColor='var(--border-hover)'; this.style.boxShadow='0 0 20px rgba(99,102,241,0.1)'" onmouseleave="this.style.borderColor='var(--glass-border)'; this.style.boxShadow=''; this.style.transform=''">
   <!-- Rank badge -->
   <div class={`absolute -top-2.5 -left-2.5 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${rankClass || ''}`} style={rank > 3 ? 'background: var(--bg-card-solid); border: 1px solid var(--border); color: var(--text-secondary);' : ''}>
     {rank <= 3 ? (
@@ -222,6 +222,35 @@ const rankLabel = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉
         document.execCommand('copy');
         ta.remove();
       }
+    });
+  });
+</script>
+
+<script>
+  // 3D tilt effect on cards
+  document.querySelectorAll('.card-3d').forEach(card => {
+    const el = card as HTMLElement;
+    let rafId: number;
+
+    el.addEventListener('mousemove', (e: MouseEvent) => {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        const rect = el.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotateX = ((y - centerY) / centerY) * -6;
+        const rotateY = ((x - centerX) / centerX) * 6;
+        el.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+      });
+    });
+
+    el.addEventListener('mouseleave', () => {
+      cancelAnimationFrame(rafId);
+      el.style.transition = 'transform 0.4s ease-out';
+      el.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+      setTimeout(() => { el.style.transition = ''; }, 400);
     });
   });
 </script>

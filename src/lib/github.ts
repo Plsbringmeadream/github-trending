@@ -142,3 +142,73 @@ export const SORT_OPTIONS = [
   { value: 'updated', label: '🕐 Recently Updated' },
   { value: 'name', label: '🔤 Name' },
 ];
+
+export interface CategoryDef {
+  id: string;
+  label: string;
+  icon: string;
+  keywords: string[];
+}
+
+export const CATEGORIES: CategoryDef[] = [
+  {
+    id: 'ai',
+    label: 'AI / ML',
+    icon: '🧠',
+    keywords: ['ai', 'artificial-intelligence', 'machine-learning', 'deep-learning', 'llm', 'gpt', 'neural', 'transformer', 'nlp', 'computer-vision', 'ml', 'diffusion', 'chatgpt', 'openai', 'langchain', 'rag', 'embedding', 'fine-tune', 'inference', 'model', 'agent', 'copilot'],
+  },
+  {
+    id: 'web',
+    label: 'Web Dev',
+    icon: '🌐',
+    keywords: ['web', 'frontend', 'backend', 'fullstack', 'react', 'vue', 'angular', 'nextjs', 'nuxt', 'svelte', 'astro', 'remix', 'website', 'css', 'tailwind', 'ui', 'component', 'dashboard', 'landing-page'],
+  },
+  {
+    id: 'devtools',
+    label: 'DevTools',
+    icon: '🛠️',
+    keywords: ['cli', 'terminal', 'tool', 'developer-tools', 'devtools', 'linter', 'formatter', 'debugger', 'testing', 'ci-cd', 'deployment', 'docker', 'kubernetes', 'devops', 'git', 'monitoring', 'logging', 'workflow', 'automation', 'scaffold', 'boilerplate'],
+  },
+  {
+    id: 'productivity',
+    label: 'Productivity',
+    icon: '⚡',
+    keywords: ['productivity', 'note-taking', 'todo', 'task', 'project-management', 'calendar', 'timer', 'pomodoro', 'knowledge', 'obsidian', 'notion', 'markdown', 'editor', 'writing', 'document', 'organize', 'personal', 'life', 'habit', 'tracker'],
+  },
+  {
+    id: 'data',
+    label: 'Data / DB',
+    icon: '📊',
+    keywords: ['database', 'sql', 'nosql', 'postgres', 'mysql', 'redis', 'mongodb', 'sqlite', 'data', 'analytics', 'visualization', 'chart', 'dashboard', 'etl', 'pipeline', 'pandas', 'spark', 'data-science', 'data-engineering'],
+  },
+  {
+    id: 'mobile',
+    label: 'Mobile',
+    icon: '📱',
+    keywords: ['mobile', 'android', 'ios', 'react-native', 'flutter', 'swiftui', 'kotlin-multiplatform', 'expo', 'app', 'smartphone', 'tablet', 'cross-platform'],
+  },
+  {
+    id: 'security',
+    label: 'Security',
+    icon: '🔒',
+    keywords: ['security', 'cybersecurity', 'vulnerability', 'pentest', 'ctf', 'encryption', 'authentication', 'authorization', 'oauth', 'jwt', 'firewall', 'malware', 'forensics', 'privacy', 'zero-trust'],
+  },
+  {
+    id: 'blockchain',
+    label: 'Web3',
+    icon: '⛓️',
+    keywords: ['blockchain', 'web3', 'crypto', 'ethereum', 'solidity', 'defi', 'nft', 'smart-contract', 'solana', 'bitcoin', 'dao', 'token', 'dapp'],
+  },
+];
+
+export function classifyRepo(repo: { description: string | null; topics: string[]; name: string }): string[] {
+  const text = [
+    repo.name,
+    repo.description || '',
+    ...repo.topics,
+  ].join(' ').toLowerCase();
+
+  return CATEGORIES
+    .filter(cat => cat.keywords.some(kw => text.includes(kw)))
+    .map(cat => cat.id);
+}

@@ -19,26 +19,34 @@ const stats = [
   {
     icon: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>`,
     value: formatBigNumber(totalCount),
+    rawValue: totalCount,
     label: 'Trending Repos',
     gradient: 'var(--gradient-start), var(--purple)',
+    isNumber: true,
   },
   {
     icon: `<span class="text-lg">⭐</span>`,
     value: formatBigNumber(totalStars),
+    rawValue: totalStars,
     label: 'Total Stars',
     gradient: 'var(--orange), #fbbf24',
+    isNumber: true,
   },
   {
     icon: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>`,
     value: `${currentDays}d`,
+    rawValue: currentDays,
     label: 'Time Window',
     gradient: 'var(--green), #34d399',
+    isNumber: true,
   },
   {
     icon: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>`,
     value: topLang,
+    rawValue: 0,
     label: 'Top Language',
     gradient: 'var(--cyan), #0ea5e9',
+    isNumber: false,
   },
 ];
 ---
@@ -52,7 +60,11 @@ const stats = [
             <Fragment set:html={stat.icon} />
           </div>
           <div class="min-w-0">
-            <p class="text-2xl font-bold tracking-tight" style="color: var(--text);">{stat.value}</p>
+            {stat.isNumber ? (
+              <p class="text-2xl font-bold tracking-tight counter-value" style="color: var(--text);" data-target={stat.rawValue} data-suffix={stat.value.replace(/[\d.]+/, '')}>{stat.value}</p>
+            ) : (
+              <p class="text-2xl font-bold tracking-tight" style="color: var(--text);">{stat.value}</p>
+            )}
             <p class="text-xs truncate" style="color: var(--text-secondary);">{stat.label}</p>
           </div>
         </div>
@@ -75,3 +87,60 @@ const stats = [
     </div>
   )}
 </div>
+
+<script>
+  // Counter animation
+  function animateCounter(el: HTMLElement) {
+    const target = parseInt(el.dataset.target || '0', 10);
+    if (target === 0) return;
+
+    const originalText = el.textContent || '';
+    const suffix = el.dataset.suffix || '';
+    const duration = 1200;
+    const start = performance.now();
+
+    function formatNum(n: number): string {
+      if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
+      if (n >= 1_000) return (n / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
+      return Math.round(n).toString();
+    }
+
+    function tick(now: number) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      // Ease out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = target * eased;
+
+      if (suffix && target < 100) {
+        el.textContent = Math.round(current) + suffix;
+      } else {
+        el.textContent = formatNum(current);
+      }
+
+      if (progress < 1) {
+        requestAnimationFrame(tick);
+      } else {
+        el.textContent = originalText;
+      }
+    }
+
+    requestAnimationFrame(tick);
+  }
+
+  // Use Intersection Observer to trigger when visible
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const counters = entry.target.querySelectorAll('.counter-value');
+        counters.forEach((el, i) => {
+          setTimeout(() => animateCounter(el as HTMLElement), i * 150);
+        });
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.3 });
+
+  const statsContainer = document.querySelector('.grid.grid-cols-2');
+  if (statsContainer) observer.observe(statsContainer);
+</script>

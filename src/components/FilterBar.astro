@@ -1,37 +1,77 @@
 ---
-import { LANGUAGES, SORT_OPTIONS } from '../lib/github';
+import { LANGUAGES, SORT_OPTIONS, CATEGORIES } from '../lib/github';
 
 interface Props {
   currentLanguage: string;
   currentSort: string;
   currentDays: number;
+  currentCategory?: string;
 }
 
-const { currentLanguage, currentSort, currentDays } = Astro.props;
+const { currentLanguage, currentSort, currentDays, currentCategory = '' } = Astro.props;
 
 const DAYS_OPTIONS = [
   { value: 7, label: '7d' },
   { value: 14, label: '14d' },
   { value: 30, label: '30d' },
 ];
+
+function buildUrl(overrides: Record<string, string>) {
+  const params = new URLSearchParams({
+    lang: currentLanguage,
+    sort: currentSort,
+    days: String(currentDays),
+    cat: currentCategory,
+    ...overrides,
+  });
+  return `/?${params.toString()}`;
+}
 ---
 
 <div class="sticky top-0 z-50 glass" style="border-bottom: 1px solid var(--border);">
   <div class="max-w-7xl mx-auto px-4 py-3">
+    <!-- Category filters -->
+    <div class="flex gap-1.5 overflow-x-auto pb-2 scrollbar-hide mb-2">
+      <a
+        href={buildUrl({ cat: '' })}
+        class:list={[
+          'pill-tab px-3 py-1.5 text-sm rounded-full whitespace-nowrap transition-all duration-250',
+          !currentCategory ? 'text-white font-semibold shadow-lg' : 'glass',
+        ]}
+        style={!currentCategory
+          ? 'background: linear-gradient(135deg, var(--gradient-start), var(--purple)); color: #fff; box-shadow: 0 4px 12px rgba(99,102,241,0.3);'
+          : 'color: var(--text-secondary);'}
+      >
+        🔥 All
+      </a>
+      {CATEGORIES.map((cat) => (
+        <a
+          href={buildUrl({ cat: cat.id })}
+          class:list={[
+            'pill-tab px-3 py-1.5 text-sm rounded-full whitespace-nowrap transition-all duration-250',
+            currentCategory === cat.id ? 'text-white font-semibold shadow-lg' : 'glass',
+          ]}
+          style={currentCategory === cat.id
+            ? 'background: linear-gradient(135deg, var(--gradient-start), var(--purple)); color: #fff; box-shadow: 0 4px 12px rgba(99,102,241,0.3);'
+            : 'color: var(--text-secondary);'}
+        >
+          {cat.icon} {cat.label}
+        </a>
+      ))}
+    </div>
+
+    <!-- Language + controls row -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-      <!-- Language filters -->
       <div class="flex gap-1.5 flex-1 overflow-x-auto pb-1 scrollbar-hide">
         {LANGUAGES.map((lang) => (
           <a
-            href={`/?lang=${encodeURIComponent(lang)}&sort=${currentSort}&days=${currentDays}`}
+            href={buildUrl({ lang: lang === 'All' ? '' : lang })}
             class:list={[
               'pill-tab px-3 py-1.5 text-sm rounded-full whitespace-nowrap transition-all duration-250',
-              currentLanguage === lang
-                ? 'text-white font-semibold shadow-lg'
-                : 'glass',
+              currentLanguage === lang ? 'text-white font-semibold shadow-lg' : 'glass',
             ]}
             style={currentLanguage === lang
-              ? 'background: linear-gradient(135deg, var(--gradient-start), var(--purple)); color: #fff; box-shadow: 0 4px 12px rgba(99,102,241,0.3);'
+              ? 'background: linear-gradient(135deg, var(--green), #34d399); color: #fff; box-shadow: 0 4px 12px rgba(22,163,74,0.3);'
               : 'color: var(--text-secondary);'}
           >
             {lang}
@@ -39,13 +79,11 @@ const DAYS_OPTIONS = [
         ))}
       </div>
 
-      <!-- Controls group -->
       <div class="flex items-center gap-2">
-        <!-- Time range selector -->
         <div class="flex items-center glass rounded-xl overflow-hidden">
           {DAYS_OPTIONS.map((opt) => (
             <a
-              href={`/?lang=${encodeURIComponent(currentLanguage)}&sort=${currentSort}&days=${opt.value}`}
+              href={buildUrl({ days: String(opt.value) })}
               class:list={[
                 'px-3 py-1.5 text-sm transition-all duration-200 whitespace-nowrap',
                 currentDays === opt.value ? 'text-white font-semibold' : '',
@@ -59,13 +97,12 @@ const DAYS_OPTIONS = [
           ))}
         </div>
 
-        <!-- Sort dropdown -->
         <div class="relative">
           <select
             id="sort-select"
             class="appearance-none glass text-sm rounded-xl px-4 py-2 pr-8 cursor-pointer focus:outline-none transition-colors"
             style="color: var(--text);"
-            onchange={`window.location.href='/?lang=${encodeURIComponent(currentLanguage)}&days=${currentDays}&sort='+this.value`}
+            onchange={`window.location.href='${buildUrl({ sort: '' }).replace(/sort=[^&]*/, 'sort=')}'+this.value`}
           >
             {SORT_OPTIONS.map((opt) => (
               <option value={opt.value} selected={currentSort === opt.value}>

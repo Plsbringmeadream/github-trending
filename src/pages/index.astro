@@ -8,12 +8,13 @@ import ProjectCard from '../components/ProjectCard.astro';
 import Pagination from '../components/Pagination.astro';
 import AiChat from '../components/AiChat.astro';
 import LanguageChart from '../components/LanguageChart.astro';
-import { fetchTrendingRepos } from '../lib/github';
+import { fetchTrendingRepos, classifyRepo, CATEGORIES } from '../lib/github';
 
 const lang = Astro.url.searchParams.get('lang') || 'All';
 const sort = Astro.url.searchParams.get('sort') || 'stars';
 const page = Math.max(1, parseInt(Astro.url.searchParams.get('page') || '1', 10) || 1);
 const days = Math.min(30, Math.max(1, parseInt(Astro.url.searchParams.get('days') || '30', 10) || 30));
+const category = Astro.url.searchParams.get('cat') || '';
 const perPage = 30;
 
 let repos: any[] = [];
@@ -31,10 +32,19 @@ try {
   errorMsg = err.message || 'Failed to fetch trending repositories';
 }
 
+// Apply category filter (client-side since GitHub API doesn't support it)
+let filteredRepos = repos;
+if (category) {
+  filteredRepos = repos.filter((repo: any) => {
+    const cats = classifyRepo(repo);
+    return cats.includes(category);
+  });
+}
+
 const totalPages = Math.ceil(totalCount / perPage);
 
 const langCounts: Record<string, number> = {};
-repos.forEach((r: any) => {
+filteredRepos.forEach((r: any) => {
   const l = r.language || 'Other';
   langCounts[l] = (langCounts[l] || 0) + 1;
 });
@@ -85,10 +95,10 @@ const topLang = Object.entries(langCounts).sort((a, b) => b[1] - a[1])[0]?.[0] |
           <span class="w-2 h-2 rounded-full animate-pulse" style="background: var(--accent);"></span>
           Live GitHub Intelligence
         </div>
-        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-4 leading-tight">
-          <span class="gradient-text">Discover the Next Breakout</span>
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-4 leading-tight" id="hero-title">
+          <span class="gradient-text" id="hero-line1"></span><span class="typewriter-cursor" id="hero-cursor">|</span>
           <br />
-          <span style="color: var(--text);">GitHub Repositories</span>
+          <span style="color: var(--text);" id="hero-line2"></span>
         </h2>
         <p class="text-base sm:text-lg max-w-2xl mx-auto" style="color: var(--text-secondary);">
           AI-powered analysis of trending open source projects. Track stars, languages, and repo growth in real time.
@@ -111,7 +121,7 @@ const topLang = Object.entries(langCounts).sort((a, b) => b[1] - a[1])[0]?.[0] |
     </div>
   </header>
 
-  <FilterBar currentLanguage={lang} currentSort={sort} currentDays={days} />
+  <FilterBar currentLanguage={lang} currentSort={sort} currentDays={days} currentCategory={category} />
 
   {errorMsg ? (
     <div class="max-w-7xl mx-auto px-4 py-20 text-center page-animate">
@@ -134,7 +144,7 @@ const topLang = Object.entries(langCounts).sort((a, b) => b[1] - a[1])[0]?.[0] |
     </div>
   ) : (
     <>
-      <StatsBar totalCount={totalCount} totalStars={totalStars} currentLanguage={lang} currentDays={days} topLang={topLang} />
+      <StatsBar totalCount={filteredRepos.length} totalStars={filteredRepos.reduce((s: number, r: any) => s + r.stargazers_count, 0)} currentLanguage={lang} currentDays={days} topLang={topLang} />
 
       <LanguageChart repos={repos} currentLanguage={lang} currentSort={sort} currentDays={days} />
 
@@ -169,12 +179,12 @@ const topLang = Object.entries(langCounts).sort((a, b) => b[1] - a[1])[0]?.[0] |
         </div>
 
         <div id="repo-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {repos.map((repo: any, i: number) => (
-            <ProjectCard repo={repo} rank={(page - 1) * perPage + i + 1} />
+          {filteredRepos.map((repo: any, i: number) => (
+            <ProjectCard repo={repo} rank={i + 1} />
           ))}
         </div>
 
-        {repos.length === 0 && (
+        {filteredRepos.length === 0 && (
           <div class="text-center py-20">
             <p class="text-lg" style="color: var(--text-secondary);">No repositories found for this filter.</p>
             <a href="/" class="inline-block mt-4 hover:underline" style="color: var(--accent);">View all trending repos</a>
@@ -205,6 +215,52 @@ const topLang = Object.entries(langCounts).sort((a, b) => b[1] - a[1])[0]?.[0] |
       });
     }
   </script>
+
+  <!-- Typewriter effect -->
+  <script>
+    (() => {
+      const line1El = document.getElementById('hero-line1');
+      const line2El = document.getElementById('hero-line2');
+      const cursorEl = document.getElementById('hero-cursor');
+      if (!line1El || !line2El || !cursorEl) return;
+
+      const line1 = 'Discover the Next Breakout';
+      const line2 = 'GitHub Repositories';
+      const speed = 50;
+      const pauseBetween = 300;
+
+      async function typeText(el: HTMLElement, text: string) {
+        for (let i = 0; i < text.length; i++) {
+          el.textContent += text[i];
+          await new Promise(r => setTimeout(r, speed + Math.random() * 30));
+        }
+      }
+
+      async function run() {
+        await typeText(line1El, line1);
+        await new Promise(r => setTimeout(r, pauseBetween));
+        await typeText(line2El, line2);
+        // Blink cursor for a bit then hide
+        await new Promise(r => setTimeout(r, 2000));
+        cursorEl.style.display = 'none';
+      }
+
+      run();
+    })();
+  </script>
+
+  <style>
+    .typewriter-cursor {
+      font-weight: 100;
+      animation: blink 0.8s step-end infinite;
+      margin-left: 2px;
+      color: var(--accent);
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+  </style>
 
   <!-- Client-side logic -->
   <script define:vars={{ reposData: repos }}>
